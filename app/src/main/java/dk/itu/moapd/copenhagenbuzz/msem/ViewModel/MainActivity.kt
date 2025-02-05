@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var eventLocation: EditText
     private lateinit var addEventButton: FloatingActionButton
     private lateinit var eventDate: EditText
-    private lateinit var eventType: EditText
+    private lateinit var eventType: String
     private lateinit var eventDescription : EditText
 
 
@@ -46,12 +46,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(customBinding.root)
 
         // Link the UI components with the Kotlin source -code.
-        eventName = findViewById(R.id.edit_text_event_name)
-        eventLocation = findViewById(R.id.edit_text_event_location)
-        addEventButton = findViewById(R.id.fab_add_event)
-        eventDate = findViewById(R.id.edit_text_event_date)
-        eventType = findViewById(R.id.auto_complete_event_type)
-        eventDescription = findViewById(R.id.edit_text_event_discription)
 
         val items = listOf("Party", "Conference", "Foood")
 
@@ -63,12 +57,16 @@ class MainActivity : AppCompatActivity() {
 
         customBinding.autoCompleteEventType.setOnItemClickListener { adapterView, _, position, _ ->
             val selectedType = adapterView.getItemAtPosition(position) as String
-            event.setEventType(selectedType) // Gem streng i event
+            eventType = selectedType // Gem streng i event
         }
 
 
         // Listener for user interaction in the `Add Event ` button.
-        customBinding.addEventButton.setOnClickListener {
+        customBinding.fabAddEvent.setOnClickListener {
+            eventName = findViewById(R.id.edit_text_event_name)
+            eventLocation = findViewById(R.id.edit_text_event_location)
+            eventDate = findViewById(R.id.edit_text_event_date)
+            eventDescription = findViewById(R.id.edit_text_event_discription)
 
             // Only execute the following code when the user fills all
             // `EditText `.
@@ -78,31 +76,14 @@ class MainActivity : AppCompatActivity() {
             }
 
             // Update the object attributes.
-            event.setEventName(
-                eventName.text.toString().trim()
-            )
-            event.setEventLocation(
-                eventLocation.text.toString().trim()
-            )
-
-            event.setEventDate(
-                eventDate.text.toString().trim()
-            )
-
-            event.setEventType(
-                eventType.text.toString().trim()
-            )
-
-            event.setEventDescription(
-                eventDescription.text.toString().trim()
-            )
-
+            event.eventName = eventName.text.toString().trim()
+            event.eventLocation = eventLocation.text.toString().trim()
+            event.eventDate = eventDate.text.toString().trim()
+            event.eventType = eventType
+            Log.d(TAG, "eventName is ${eventType}")
+            event.eventDescription = eventDescription.text.toString().trim()
             // Write in the `Logcat ` system.
             showMessage()
-
-
-
-
             //datePicker.show(supportFragmentManager, "tag")
         }
 
