@@ -26,11 +26,14 @@ package dk.itu.moapd.copenhagenbuzz.msem.Model
 /**
 *  A dataclass representing an event i the CopenhagemBuzz App
 *
-* This Class is used to store details about an event such as eventName, eventLocation, eventDate
-* eventType and eventDescription
+* This Class is used to defines the object type event with fields such as eventName, 
+* eventLocation, eventDate, eventType and eventDescription
 *
 * @property eventName The name of the event.
 * @property eventLocation The location of the event.
+* @property eventDate The date of the event.
+* @property eventType The type of the event.
+* @property eventDescription The description of the event.
 */
 data class Event(
     var eventName: String,

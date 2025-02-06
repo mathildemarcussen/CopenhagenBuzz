@@ -43,19 +43,24 @@ import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion.TAG
 class MainActivity : AppCompatActivity() {
 
     /**
-    * ViewBindings to make the interaction between the code and our views becomes eaiser.
+    * ViewBindings used to make the interaction between the code and our views easier.
     */
     private lateinit var binding: ActivityMainBinding
     private lateinit var customBinding: ContentMainBinding
 
-
+    /**
+    * The companion object defines class level functions,
+    * in this one we set TAG that is used when logging something in logcat.
+    * The TAG shows in logcat wherefrom the log came. This one sets it as
+    * coming from MainAcrivity.
+    */
     companion object {
         private val TAG = MainActivity::class.qualifiedName
         }
 
     /**
-     * A set of private constants used in the class.
-     */
+    * A set of private variables used in the class.
+    */
     private lateinit var eventName: EditText
     private lateinit var eventLocation: EditText
     private lateinit var eventDate: EditText
@@ -64,36 +69,40 @@ class MainActivity : AppCompatActivity() {
 
 
     /**
-     * An instance of the `Event ` class.
+     * Instantiation of an object of the `Event ` class.
+     * which takes the input eventName, eventLocation, eventDate, eventType and eventDescription
      */
     private val event: Event = Event("", "","", "", "")
 
-
+    /**
+     * Called when activity is starting.Initializes UI elements and event listeners.
+     *
+     * @param savedInstanceState The saved instance state if the activity is being re-initialized.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
 
+        // Initialize ViewBindings
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         customBinding = ContentMainBinding.inflate(layoutInflater)
         setContentView(customBinding.root)
 
+        //Sets up the type picker dropdown menu
         createTypePicker()
+        //Listener for user interaction in the `Add Event ` button.
+        createEvent()
 
-        customBinding.autoCompleteEventType.setOnItemClickListener { adapterView, _, position, _ ->
-            val selectedType = adapterView.getItemAtPosition(position) as String
-            eventType = selectedType // Gem streng i event
-        }
-
-
-        // Listener for user interaction in the `Add Event ` button.
-        customBinding.fabAddEvent.setOnClickListener {
-                createEvent()
-        }
     }
 
+    /**
+     * Sets up the listener for the "Add Event" button to capture user inputs,
+     * and updates the event object.
+     */
     private fun createEvent() {
+        //Initializes the user inputs as variables
+        customBinding.fabAddEvent.setOnClickListener {
         eventName = findViewById(R.id.edit_text_event_name)
         eventLocation = findViewById(R.id.edit_text_event_location)
         eventDate = findViewById(R.id.edit_text_event_date)
@@ -102,26 +111,38 @@ class MainActivity : AppCompatActivity() {
         if (eventName.text.toString().isNotEmpty() &&
             eventLocation.text.toString().isNotEmpty()
         ) {
-
-
         // Update the object attributes.
         event.eventName = eventName.text.toString().trim()
         event.eventLocation = eventLocation.text.toString().trim()
         event.eventDate = eventDate.text.toString().trim()
         event.eventType = eventType
         event.eventDescription = eventDescription.text.toString().trim()
+        //Log the created event
+        Log.d(TAG, "Event created ${event}")
+        }
         }
 
     }
 
+    /**
+     * Configures the dropdown menu for selecting an event type.
+     */
     private fun createTypePicker() {
+        //Lists of event types available in the drop down menu
         val items = listOf("Party", "Conference", "Foood")
 
-        val autoCompleteEventType =
-            findViewById<AutoCompleteTextView>(R.id.auto_complete_event_type)
+        val eventTypeMenu =
+            findViewById<AutoCompleteTextView>(R.id.event_type_menu)
 
+        // Set up the dropdown adapter
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, items)
-        autoCompleteEventType.setAdapter(adapter)
+        eventTypeMenu.setAdapter(adapter)
+
+        // Handle item selection from the dropdown
+        customBinding.eventTypeMenu.setOnItemClickListener { adapterView, _, position, _ ->
+                    val selectedType = adapterView.getItemAtPosition(position) as String
+                    eventType = selectedType
+                }
     }
 
 }

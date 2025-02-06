@@ -107,7 +107,7 @@
 
 
         <AutoCompleteTextView
-            android:id="@+id/auto_complete_event_type"
+            android:id="@+id/event_type_menu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="none" />
