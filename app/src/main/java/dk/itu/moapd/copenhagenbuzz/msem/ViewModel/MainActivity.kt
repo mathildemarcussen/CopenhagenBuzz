@@ -23,8 +23,10 @@
 */
 
 package dk.itu.moapd.copenhagenbuzz.msem.ViewModel
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.EditText
@@ -33,9 +35,11 @@ import dk.itu.moapd.copenhagenbuzz.msem.databinding.ActivityMainBinding
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.ContentMainBinding
 import androidx.core.view.WindowCompat
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.R
 import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion.TAG
+
 
 /**
  * Activity class with methods that manage the  main activities of the CopenhagenBuzz app
@@ -102,7 +106,7 @@ class MainActivity : AppCompatActivity() {
      */
     private fun createEvent() {
         //Initializes the user inputs as variables
-        customBinding.fabAddEvent.setOnClickListener {
+        customBinding.fabAddEvent.setOnClickListener { view ->
         eventName = findViewById(R.id.edit_text_event_name)
         eventLocation = findViewById(R.id.edit_text_event_location)
         eventDate = findViewById(R.id.edit_text_event_date)
@@ -117,8 +121,11 @@ class MainActivity : AppCompatActivity() {
         event.eventDate = eventDate.text.toString().trim()
         event.eventType = eventType
         event.eventDescription = eventDescription.text.toString().trim()
+        // Calls the Snackbar so it gets shown when the button is clicked
+        Snackbar(view)
         //Log the created event
         Log.d(TAG, "Event created ${event}")
+
         }
         }
 
@@ -143,6 +150,15 @@ class MainActivity : AppCompatActivity() {
                     val selectedType = adapterView.getItemAtPosition(position) as String
                     eventType = selectedType
                 }
+    }
+
+    /**
+    * function takes a view and creates a snackbar with a message for when events are created.
+     *
+     * @parem view the current view
+    */
+    fun Snackbar (view: View){
+        Snackbar.make(view, "Event added using \n ${event}", Snackbar.LENGTH_LONG).show()
     }
 
 }
