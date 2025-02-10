@@ -23,7 +23,10 @@
 */
 
 package dk.itu.moapd.copenhagenbuzz.msem.ViewModel
+
 import android.graphics.Color
+import android.icu.util.Calendar
+import android.icu.util.TimeZone
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -31,11 +34,17 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.util.component1
+import androidx.core.util.component2
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.ActivityMainBinding
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.ContentMainBinding
 import androidx.core.view.WindowCompat
+import com.google.android.material.datepicker.CalendarConstraints
+import com.google.android.material.datepicker.DateValidatorPointForward
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.R
 import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion.TAG
@@ -47,36 +56,37 @@ import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion.TAG
 class MainActivity : AppCompatActivity() {
 
     /**
-    * ViewBindings used to make the interaction between the code and our views easier.
-    */
+     * ViewBindings used to make the interaction between the code and our views easier.
+     */
     private lateinit var binding: ActivityMainBinding
     private lateinit var customBinding: ContentMainBinding
 
     /**
-    * The companion object defines class level functions,
-    * in this one we set TAG that is used when logging something in logcat.
-    * The TAG shows in logcat wherefrom the log came. This one sets it as
-    * coming from MainAcrivity.
-    */
+     * The companion object defines class level functions,
+     * in this one we set TAG that is used when logging something in logcat.
+     * The TAG shows in logcat wherefrom the log came. This one sets it as
+     * coming from MainAcrivity.
+     */
     companion object {
         private val TAG = MainActivity::class.qualifiedName
-        }
+    }
 
     /**
-    * A set of private variables used in the class.
-    */
+     * A set of private variables used in the class.
+     */
     private lateinit var eventName: EditText
     private lateinit var eventLocation: EditText
     private lateinit var eventDate: EditText
+    private lateinit var dateRangeField: TextInputEditText
     private lateinit var eventType: String
-    private lateinit var eventDescription : EditText
+    private lateinit var eventDescription: EditText
 
 
     /**
      * Instantiation of an object of the `Event ` class.
      * which takes the input eventName, eventLocation, eventDate, eventType and eventDescription
      */
-    private val event: Event = Event("", "","", "", "")
+    private val event: Event = Event("", "", "", "", "")
 
     /**
      * Called when activity is starting.Initializes UI elements and event listeners.
@@ -93,10 +103,16 @@ class MainActivity : AppCompatActivity() {
         customBinding = ContentMainBinding.inflate(layoutInflater)
         setContentView(customBinding.root)
 
+        // Getting the reference to the date picker UI element
+        dateRangeField = findViewById(R.id.edit_text_event_date)
+
         //Sets up the type picker dropdown menu
         createTypePicker()
         //Listener for user interaction in the `Add Event ` button.
         createEvent()
+
+        // Sets up the DatePicker
+        DateRangePicker()
 
     }
 
@@ -107,26 +123,26 @@ class MainActivity : AppCompatActivity() {
     private fun createEvent() {
         //Initializes the user inputs as variables
         customBinding.fabAddEvent.setOnClickListener { view ->
-        eventName = findViewById(R.id.edit_text_event_name)
-        eventLocation = findViewById(R.id.edit_text_event_location)
-        eventDate = findViewById(R.id.edit_text_event_date)
-        eventDescription = findViewById(R.id.edit_text_event_discription)
+            eventName = findViewById(R.id.edit_text_event_name)
+            eventLocation = findViewById(R.id.edit_text_event_location)
+            eventDate = findViewById(R.id.edit_text_event_date)
+            eventDescription = findViewById(R.id.edit_text_event_discription)
 
-        if (eventName.text.toString().isNotEmpty() &&
-            eventLocation.text.toString().isNotEmpty()
-        ) {
-        // Update the object attributes.
-        event.eventName = eventName.text.toString().trim()
-        event.eventLocation = eventLocation.text.toString().trim()
-        event.eventDate = eventDate.text.toString().trim()
-        event.eventType = eventType
-        event.eventDescription = eventDescription.text.toString().trim()
-        // Calls the Snackbar so it gets shown when the button is clicked
-        Snackbar(view)
-        //Log the created event
-        Log.d(TAG, "Event created ${event}")
+            if (eventName.text.toString().isNotEmpty() &&
+                eventLocation.text.toString().isNotEmpty()
+            ) {
+                // Update the object attributes.
+                event.eventName = eventName.text.toString().trim()
+                event.eventLocation = eventLocation.text.toString().trim()
+                event.eventDate = eventDate.text.toString().trim()
+                event.eventType = eventType
+                event.eventDescription = eventDescription.text.toString().trim()
+                // Calls the Snackbar so it gets shown when the button is clicked
+                Snackbar(view)
+                //Log the created event
+                Log.d(TAG, "Event created ${event}")
 
-        }
+            }
         }
 
     }
@@ -147,19 +163,79 @@ class MainActivity : AppCompatActivity() {
 
         // Handle item selection from the dropdown
         customBinding.eventTypeMenu.setOnItemClickListener { adapterView, _, position, _ ->
-                    val selectedType = adapterView.getItemAtPosition(position) as String
-                    eventType = selectedType
-                }
+            val selectedType = adapterView.getItemAtPosition(position) as String
+            eventType = selectedType
+        }
     }
 
     /**
-    * function takes a view and creates a snackbar with a message for when events are created.
+     * function takes a view and creates a snackbar with a message for when events are created.
      *
      * @parem view the current view
-    */
-    fun Snackbar (view: View){
+     */
+    fun Snackbar(view: View) {
         Snackbar.make(view, "Event added using \n ${event}", Snackbar.LENGTH_LONG).show()
     }
 
+    /**
+     * function creates a pop-up window with a calendar when the choose date field is clicked
+     * this date range picker is taken from material components
+     * "https://github.com/material-components/material-components-android/blob/master/docs/components/DatePicker.md"
+     * When choosing a range of dates, the method will return this ranges in the event date field
+     */
+    fun DateRangePicker() {
+        //Checks todays date to make the calendar starts at today. And to constrain the calendar from beginning to end of the year.
+        val today = MaterialDatePicker.todayInUtcMilliseconds()
+        val calender = Calendar.getInstance(TimeZone.getFrozenTimeZone("UTC"))
+
+        calender.timeInMillis = today
+        calender[Calendar.MONTH] = Calendar.JANUARY
+        val janThisYear = calender.timeInMillis
+
+        calender.timeInMillis = today
+        calender[Calendar.MONTH] = Calendar.DECEMBER
+        val decThisYear = calender.timeInMillis
+
+        //The constraintbuilder sets the point we start at and that we can only choose dates later than today
+        val constraintsBuilder = CalendarConstraints.Builder()
+            .setStart(janThisYear)
+            .setEnd(decThisYear)
+            .setValidator(DateValidatorPointForward.now())
+
+        val dateRangePicker = MaterialDatePicker.Builder.dateRangePicker()
+            .setTitleText("Select dates")
+
+            .setInputMode(MaterialDatePicker.INPUT_MODE_TEXT)
+            .setCalendarConstraints(constraintsBuilder.build())
+            .build()
+
+        // Sets up a click listener so the calendar prompt appears when accessing the field.
+        dateRangeField.setOnClickListener {
+            dateRangePicker.show(supportFragmentManager, "date_range_picker")
+        }
+
+        /** Sets up a click listener that arranges the dates in the correct order
+         * and saves the values to the event date field
+         */
+        dateRangePicker.addOnPositiveButtonClickListener{selection ->
+            // The value returned when the user have chosen the dates and clicked save
+            val (startDate, endDate) = selection
+
+            // Formatting the date
+            val format = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
+            val startString = format.format(startDate)
+            val endString   = format.format(endDate)
+
+            // setting the text field  with a start date and an end date
+            dateRangeField.setText("$startString - $endString")
+
+        }
+
+
+
+
+
+
+    }
 }
 
