@@ -152,13 +152,13 @@ class MainActivity : AppCompatActivity() {
      */
     private fun createTypePicker() {
         //Lists of event types available in the drop down menu
-        val items = listOf("Party", "Conference", "Foood")
+        val array: Array<String> = resources.getStringArray(R.array.event_types)
 
         val eventTypeMenu =
             findViewById<AutoCompleteTextView>(R.id.event_type_menu)
 
         // Set up the dropdown adapter
-        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, items)
+        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, array)
         eventTypeMenu.setAdapter(adapter)
 
         // Handle item selection from the dropdown
@@ -203,7 +203,7 @@ class MainActivity : AppCompatActivity() {
             .setValidator(DateValidatorPointForward.now())
 
         val dateRangePicker = MaterialDatePicker.Builder.dateRangePicker()
-            .setTitleText("Select dates")
+            .setTitleText(getText(R.string.event_date))
 
             .setInputMode(MaterialDatePicker.INPUT_MODE_TEXT)
             .setCalendarConstraints(constraintsBuilder.build())
@@ -225,9 +225,12 @@ class MainActivity : AppCompatActivity() {
             val format = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
             val startString = format.format(startDate)
             val endString   = format.format(endDate)
+            val string: String = getString(R.string.date_range, startString, endString)
+
+
 
             // setting the text field  with a start date and an end date
-            dateRangeField.setText("$startString - $endString")
+            dateRangeField.setText(string)
 
         }
 
