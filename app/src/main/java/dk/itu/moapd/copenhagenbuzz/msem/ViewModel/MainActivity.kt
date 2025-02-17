@@ -85,7 +85,7 @@ import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion.TAG
     private lateinit var dateRangeField: TextInputEditText
     private lateinit var eventType: String
     private lateinit var eventDescription: EditText
-    public var isLoggedIn: Boolean = false
+    var isLoggedIn: Boolean = false
 
 
 
@@ -121,25 +121,32 @@ import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion.TAG
         // Sets up the DatePicker
         DateRangePicker()
 
+        // Find and sssigns a reference to the imagebutton
         val userButton = findViewById<ImageButton>(R.id.login)
 
+        // Retrieves the boolean value from the LoginActivity wether it is true or false
         isLoggedIn = intent.getBooleanExtra("isLoggedIn", false)
 
+        // Updates the userbutton based on the isLoggedIn value
         updateUserIcon(userButton)
 
-        userButton.setImageResource(if (isLoggedIn) R.drawable.baseline_logout_24 else R.drawable.baseline_account_circle_24)
-
+        /** Click lisnetner for the User button
+         * Calls startActivity to launch LoginActivity
+         * Calls finish to close MainActivity
+         */
         userButton.setOnClickListener {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
             finish()
         }
 
-        updateUserIcon(userButton)
-
 
     }
 
+    /**
+     * This Method determines which pivture is shown for the icon wether it is a
+     * logout icon our a guest symbol
+     */
     private fun updateUserIcon(userButton: ImageButton) {
         if (isLoggedIn) {
             userButton.setImageResource(R.drawable.baseline_logout_24) // Logout icon
