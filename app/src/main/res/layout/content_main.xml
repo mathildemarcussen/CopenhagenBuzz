@@ -11,9 +11,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:elevation="16dp"
+        android:outlineProvider="bounds"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/lavender_mist">
+        android:background="@color/lavender_mist"
+        >
 
         <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -42,6 +45,7 @@
             android:layout_height="wrap_content"
             android:drawableLeft="@drawable/baseline_login_24"
             android:contentDescription="@string/app_name"
+            android:background="?attr/selectableItemBackgroundBorderless"
             tools:ignore="ButtonStyle"
             android:gravity="end"
             />
