@@ -36,12 +36,14 @@ class LoginActivity : AppCompatActivity() {
             putExtra("isLoggedIn", true)
             }
             startActivity(intent)
+            finish()
         }
         customBinding.guest.setOnClickListener{
             val intent = Intent(this, MainActivity::class.java).apply{
             putExtra("isLoggedIn", false)
             }
             startActivity(intent)
+            finish()
         }
     }
 

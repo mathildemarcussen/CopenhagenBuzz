@@ -24,6 +24,7 @@
 
 package dk.itu.moapd.copenhagenbuzz.msem.ViewModel
 
+import android.content.Intent
 import android.graphics.Color
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
@@ -50,6 +51,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.R
+import dk.itu.moapd.copenhagenbuzz.msem.View.LoginActivity
 import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion.TAG
 
 
@@ -123,22 +125,27 @@ import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion.TAG
 
         isLoggedIn = intent.getBooleanExtra("isLoggedIn", false)
 
-        userButton.setImageResource(if (isLoggedIn) R.drawable.baseline_logout_24 else R.drawable.baseline_login_24)
+        updateUserIcon(userButton)
+
+        userButton.setImageResource(if (isLoggedIn) R.drawable.baseline_logout_24 else R.drawable.baseline_account_circle_24)
 
         userButton.setOnClickListener {
-            isLoggedIn = !isLoggedIn // Skift status
-            userButton.setImageResource(if (isLoggedIn) R.drawable.baseline_logout_24 else R.drawable.baseline_login_24)
-
-            if (isLoggedIn) {
-                // Naviger til profil eller log ud
-                Toast.makeText(this, "Logged in", Toast.LENGTH_SHORT).show()
-            } else {
-                // Naviger til login-skærm
-                Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show()
-            }
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
         }
 
+        updateUserIcon(userButton)
 
+
+    }
+
+    private fun updateUserIcon(userButton: ImageButton) {
+        if (isLoggedIn) {
+            userButton.setImageResource(R.drawable.baseline_logout_24) // Logout icon
+        } else {
+            userButton.setImageResource(R.drawable.baseline_account_circle_24) // Login icon
+        }
     }
 
     /**
