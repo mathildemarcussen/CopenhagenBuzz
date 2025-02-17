@@ -7,11 +7,17 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import dk.itu.moapd.copenhagenbuzz.msem.R
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.ActivityLoginBinding
-import dk.itu.moapd.copenhagenbuzz.msem.databinding.ActivityMainBinding
+import dk.itu.moapd.copenhagenbuzz.msem.databinding.ContentLoginBinding
+import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity
+import android.content.Intent
+
 
 class LoginActivity : AppCompatActivity() {
+    private lateinit var customBinding: ContentLoginBinding
+
 
     private lateinit var binding: ActivityLoginBinding
+    public var isLoggedIn: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,13 +28,23 @@ class LoginActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        binding = ActivityLoginBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-    }
+        customBinding = ContentLoginBinding.inflate(layoutInflater)
+        setContentView(customBinding.root)
 
-    private fun setupUI() {
-        binding.contentLogin.apply{
-
+        customBinding.login.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java).apply{
+            putExtra("isLoggedIn", true)
+            }
+            startActivity(intent)
+        }
+        customBinding.guest.setOnClickListener{
+            val intent = Intent(this, MainActivity::class.java).apply{
+            putExtra("isLoggedIn", false)
+            }
+            startActivity(intent)
         }
     }
+
+
+
 }

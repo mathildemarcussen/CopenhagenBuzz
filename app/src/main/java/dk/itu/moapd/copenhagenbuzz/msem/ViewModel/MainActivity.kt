@@ -29,10 +29,13 @@ import android.icu.util.Calendar
 import android.icu.util.TimeZone
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.util.component1
 import androidx.core.util.component2
@@ -53,7 +56,7 @@ import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion.TAG
 /**
  * Activity class with methods that manage the  main activities of the CopenhagenBuzz app
  */
-class MainActivity : AppCompatActivity() {
+ class MainActivity : AppCompatActivity() {
 
     /**
      * ViewBindings used to make the interaction between the code and our views easier.
@@ -80,6 +83,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var dateRangeField: TextInputEditText
     private lateinit var eventType: String
     private lateinit var eventDescription: EditText
+    public var isLoggedIn: Boolean = false
+
 
 
     /**
@@ -113,6 +118,26 @@ class MainActivity : AppCompatActivity() {
 
         // Sets up the DatePicker
         DateRangePicker()
+
+        val userButton = findViewById<ImageButton>(R.id.login)
+
+        isLoggedIn = intent.getBooleanExtra("isLoggedIn", false)
+
+        userButton.setImageResource(if (isLoggedIn) R.drawable.baseline_logout_24 else R.drawable.baseline_login_24)
+
+        userButton.setOnClickListener {
+            isLoggedIn = !isLoggedIn // Skift status
+            userButton.setImageResource(if (isLoggedIn) R.drawable.baseline_logout_24 else R.drawable.baseline_login_24)
+
+            if (isLoggedIn) {
+                // Naviger til profil eller log ud
+                Toast.makeText(this, "Logged in", Toast.LENGTH_SHORT).show()
+            } else {
+                // Naviger til login-skærm
+                Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show()
+            }
+        }
+
 
     }
 
@@ -233,9 +258,6 @@ class MainActivity : AppCompatActivity() {
             dateRangeField.setText(string)
 
         }
-
-
-
 
 
 
