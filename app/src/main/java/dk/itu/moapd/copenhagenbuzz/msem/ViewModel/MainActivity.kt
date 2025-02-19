@@ -47,6 +47,7 @@ import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
@@ -140,6 +141,25 @@ import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion.TAG
             finish()
         }
 
+        NavigationBarView.OnItemSelectedListener { item ->
+            when(item.itemId) {
+                R.id.item_1 -> {
+                    // Respond to navigation item 1 click
+                    true
+                }
+                R.id.item_2 -> {
+                    // Respond to navigation item 2 click
+                    true
+                }
+                R.id.item_3 -> {
+                    true
+                }
+                R.id.item_4 ->{
+                    true
+                }
+                else -> false
+            }
+        }
 
     }
 
