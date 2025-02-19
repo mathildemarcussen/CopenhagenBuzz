@@ -6,16 +6,53 @@
         android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-    style="?textAppearanceHeadlineSmall"
-    android:id="@+id/text_view_app_name"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
-    android:text= "@string/app_name"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent" />
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:elevation="16dp"
+        android:outlineProvider="bounds"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/lavender_mist"
+        >
+
+        <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        >
+
+        <TextView
+        style="?textAppearanceHeadlineSmall"
+        android:id="@+id/text_view_app_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="100dp"
+        android:layout_marginEnd="70dp"
+        android:text= "@string/app_name"
+        android:gravity="center_horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageButton
+            android:id="@+id/login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/baseline_login_24"
+            android:contentDescription="@string/app_name"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            tools:ignore="ButtonStyle"
+            android:gravity="end"
+            />
+        </androidx.appcompat.widget.Toolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
 
     <com.google.android.material.textfield.TextInputLayout
     android:id="@+id/text_field_event_name"
@@ -29,7 +66,7 @@
     app:endIconMode="clear_text"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@id/text_view_app_name">
+    app:layout_constraintTop_toBottomOf="@+id/appbar">
 
 
     <com.google.android.material.textfield.TextInputEditText

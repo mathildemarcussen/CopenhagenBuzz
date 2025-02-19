@@ -24,15 +24,19 @@
 
 package dk.itu.moapd.copenhagenbuzz.msem.ViewModel
 
+import android.content.Intent
 import android.graphics.Color
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.util.component1
 import androidx.core.util.component2
@@ -47,13 +51,14 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.R
+import dk.itu.moapd.copenhagenbuzz.msem.View.LoginActivity
 import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion.TAG
 
 
 /**
  * Activity class with methods that manage the  main activities of the CopenhagenBuzz app
  */
-class MainActivity : AppCompatActivity() {
+ class MainActivity : AppCompatActivity() {
 
     /**
      * ViewBindings used to make the interaction between the code and our views easier.
@@ -80,6 +85,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var dateRangeField: TextInputEditText
     private lateinit var eventType: String
     private lateinit var eventDescription: EditText
+    var isLoggedIn: Boolean = false
+
 
 
     /**
@@ -114,6 +121,38 @@ class MainActivity : AppCompatActivity() {
         // Sets up the DatePicker
         DateRangePicker()
 
+        // Find and sssigns a reference to the imagebutton
+        val userButton = findViewById<ImageButton>(R.id.login)
+
+        // Retrieves the boolean value from the LoginActivity wether it is true or false
+        isLoggedIn = intent.getBooleanExtra("isLoggedIn", false)
+
+        // Updates the userbutton based on the isLoggedIn value
+        updateUserIcon(userButton)
+
+        /** Click lisnetner for the User button
+         * Calls startActivity to launch LoginActivity
+         * Calls finish to close MainActivity
+         */
+        userButton.setOnClickListener {
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+
+
+    }
+
+    /**
+     * This Method determines which pivture is shown for the icon wether it is a
+     * logout icon our a guest symbol
+     */
+    private fun updateUserIcon(userButton: ImageButton) {
+        if (isLoggedIn) {
+            userButton.setImageResource(R.drawable.baseline_logout_24) // Logout icon
+        } else {
+            userButton.setImageResource(R.drawable.baseline_account_circle_24) // Login icon
+        }
     }
 
     /**
@@ -233,9 +272,6 @@ class MainActivity : AppCompatActivity() {
             dateRangeField.setText(string)
 
         }
-
-
-
 
 
 
