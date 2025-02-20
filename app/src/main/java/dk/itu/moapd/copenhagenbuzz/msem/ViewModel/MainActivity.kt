@@ -165,6 +165,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        val myBottomSheet = ModalBottomSheet()
+        myBottomSheet.show(supportFragmentManager, ModalBottomSheet.TAG)
+
+
+
+        /*
         val bottomSheet: View? = customBinding.root.findViewById(R.id.standard_bottom_sheet)
 
         if (bottomSheet != null) {
@@ -199,7 +205,7 @@ class MainActivity : AppCompatActivity() {
             })
         }else{
         Log.e("MainActivity", "FEJL: standard_bottom_sheet blev ikke fundet!")
-        }
+        }*/
 
     }
 
