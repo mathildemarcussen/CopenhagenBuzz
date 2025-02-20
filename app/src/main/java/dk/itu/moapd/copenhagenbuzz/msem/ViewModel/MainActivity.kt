@@ -25,48 +25,47 @@
 package dk.itu.moapd.copenhagenbuzz.msem.ViewModel
 
 import android.content.Intent
-import android.graphics.Color
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.util.component1
 import androidx.core.util.component2
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.ActivityMainBinding
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.ContentMainBinding
-import androidx.core.view.WindowCompat
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
-import dk.itu.moapd.copenhagenbuzz.msem.ModalBottomSheetFragment
+import dk.itu.moapd.copenhagenbuzz.msem.ModalBottomSheet
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.R
 import dk.itu.moapd.copenhagenbuzz.msem.View.LoginActivity
-import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion.TAG
+import dk.itu.moapd.copenhagenbuzz.msem.databinding.BottomSheetContentBinding
 
 
 /**
  * Activity class with methods that manage the  main activities of the CopenhagenBuzz app
  */
- class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
 
     /**
      * ViewBindings used to make the interaction between the code and our views easier.
      */
     private lateinit var binding: ActivityMainBinding
     private lateinit var customBinding: ContentMainBinding
+    private lateinit var bottomBinding: BottomSheetContentBinding
 
     /**
      * The companion object defines class level functions,
@@ -90,7 +89,6 @@ import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion.TAG
     var isLoggedIn: Boolean = false
 
 
-
     /**
      * Instantiation of an object of the `Event ` class.
      * which takes the input eventName, eventLocation, eventDate, eventType and eventDescription
@@ -110,7 +108,8 @@ import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion.TAG
         setContentView(binding.root)
 
         customBinding = ContentMainBinding.inflate(layoutInflater)
-        setContentView(customBinding.root)
+
+        //bottomBinding = BottomSheetContentBinding.inflate(layoutInflater)
 
         // Getting the reference to the date picker UI element
         dateRangeField = findViewById(R.id.edit_text_event_date)
@@ -143,27 +142,64 @@ import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion.TAG
         }
 
         NavigationBarView.OnItemSelectedListener { item ->
-            when(item.itemId) {
+            when (item.itemId) {
                 R.id.item_1 -> {
                     // Respond to navigation item 1 click
                     true
                 }
+
                 R.id.item_2 -> {
                     // Respond to navigation item 2 click
                     true
                 }
+
                 R.id.item_3 -> {
                     true
                 }
-                R.id.item_4 ->{
+
+                R.id.item_4 -> {
                     true
                 }
+
                 else -> false
             }
         }
 
-        val modalBottomSheet = ModalBottomSheetFragment()
-        modalBottomSheet.show(supportFragmentManager, ModalBottomSheetFragment.TAG)
+        val bottomSheet: View? = customBinding.root.findViewById(R.id.standard_bottom_sheet)
+
+        if (bottomSheet != null) {
+            val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
+
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+
+            bottomSheetBehavior.isHideable = true
+            bottomSheetBehavior.peekHeight = 500
+
+            bottomSheetBehavior.addBottomSheetCallback(object :
+                BottomSheetBehavior.BottomSheetCallback() {
+                override fun onStateChanged(bottomsheet: View, newState: Int) {
+                    when (newState) {
+                        BottomSheetBehavior.STATE_EXPANDED -> {
+                            bottomSheet.visibility = View.VISIBLE
+                        }
+
+                        BottomSheetBehavior.STATE_COLLAPSED -> {
+                            bottomSheet.visibility = View.INVISIBLE
+                        }
+
+                        BottomSheetBehavior.STATE_HIDDEN -> {
+                            bottomSheet.visibility = View.INVISIBLE
+                        }
+                    }
+                }
+
+                override fun onSlide(bottomSheet: View, slideOffSet: Float) {
+
+                }
+            })
+        }else{
+        Log.e("MainActivity", "FEJL: standard_bottom_sheet blev ikke fundet!")
+        }
 
     }
 
@@ -280,23 +316,21 @@ import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion.TAG
         /** Sets up a click listener that arranges the dates in the correct order
          * and saves the values to the event date field
          */
-        dateRangePicker.addOnPositiveButtonClickListener{selection ->
+        dateRangePicker.addOnPositiveButtonClickListener { selection ->
             // The value returned when the user have chosen the dates and clicked save
             val (startDate, endDate) = selection
 
             // Formatting the date
             val format = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
             val startString = format.format(startDate)
-            val endString   = format.format(endDate)
+            val endString = format.format(endDate)
             val string: String = getString(R.string.date_range, startString, endString)
-
 
 
             // setting the text field  with a start date and an end date
             dateRangeField.setText(string)
 
         }
-
 
 
     }
