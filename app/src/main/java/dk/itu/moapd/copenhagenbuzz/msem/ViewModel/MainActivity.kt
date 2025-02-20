@@ -50,6 +50,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
+import dk.itu.moapd.copenhagenbuzz.msem.ModalBottomSheetFragment
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.R
 import dk.itu.moapd.copenhagenbuzz.msem.View.LoginActivity
@@ -160,6 +161,9 @@ import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion.TAG
                 else -> false
             }
         }
+
+        val modalBottomSheet = ModalBottomSheetFragment()
+        modalBottomSheet.show(supportFragmentManager, ModalBottomSheetFragment.TAG)
 
     }
 
