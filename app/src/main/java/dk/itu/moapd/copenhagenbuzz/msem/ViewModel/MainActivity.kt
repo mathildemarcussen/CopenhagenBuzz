@@ -29,6 +29,8 @@ import android.icu.util.Calendar
 import android.icu.util.TimeZone
 import android.os.Bundle
 import android.util.Log
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
@@ -109,13 +111,14 @@ class MainActivity : AppCompatActivity() {
 
         customBinding = ContentMainBinding.inflate(layoutInflater)
 
-        //bottomBinding = BottomSheetContentBinding.inflate(layoutInflater)
+        bottomBinding = BottomSheetContentBinding.inflate(layoutInflater)
 
         // Getting the reference to the date picker UI element
         dateRangeField = findViewById(R.id.edit_text_event_date)
 
         //Sets up the type picker dropdown menu
         createTypePicker()
+
         //Listener for user interaction in the `Add Event ` button.
         createEvent()
 
@@ -165,41 +168,51 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        val bottomSheet: View? = customBinding.root.findViewById(R.id.standard_bottom_sheet)
+        val bottomSheet = findViewById<View>(R.id.standard_bottom_sheet)
 
-        if (bottomSheet != null) {
-            val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
+        if (bottomSheet == null) {
+            Log.e("MainActivity", "Error: Bottom sheet not found!")
+            return
+        }
 
+        val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
+
+        bottomSheet.visibility = View.VISIBLE
+
+        bottomSheet.post {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+        }
 
-            bottomSheetBehavior.isHideable = true
-            bottomSheetBehavior.peekHeight = 500
+        bottomSheetBehavior.isHideable = true
+        bottomSheetBehavior.peekHeight = 500
 
-            bottomSheetBehavior.addBottomSheetCallback(object :
-                BottomSheetBehavior.BottomSheetCallback() {
-                override fun onStateChanged(bottomsheet: View, newState: Int) {
-                    when (newState) {
-                        BottomSheetBehavior.STATE_EXPANDED -> {
-                            bottomSheet.visibility = View.VISIBLE
-                        }
+        Log.d("MainActivity", "Bottom Sheet initialized successfully")
 
-                        BottomSheetBehavior.STATE_COLLAPSED -> {
-                            bottomSheet.visibility = View.INVISIBLE
-                        }
-
-                        BottomSheetBehavior.STATE_HIDDEN -> {
-                            bottomSheet.visibility = View.INVISIBLE
-                        }
+        val gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onFling(
+                e1: MotionEvent?,
+                e2: MotionEvent,
+                velocityX: Float,
+                velocityY: Float
+            ): Boolean {
+                if (e1 != null && e2 != null) {
+                    val deltaY = e1.y - e2.y
+                    if (deltaY > 200 && Math.abs(velocityY) > 1000) {  // Swipe up threshold
+                        Log.d("MainActivity", "Swipe up detected!")
+                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                        return true
                     }
                 }
+                return false
+            }
+        })
 
-                override fun onSlide(bottomSheet: View, slideOffSet: Float) {
-
-                }
-            })
-        }else{
-        Log.e("MainActivity", "FEJL: standard_bottom_sheet blev ikke fundet!")
+        binding.root.setOnTouchListener { _, event ->
+            gestureDetector.onTouchEvent(event)
         }
+
+        Log.d("MainActivity", "Gesture Detector set up successfully")
+
 
     }
 
