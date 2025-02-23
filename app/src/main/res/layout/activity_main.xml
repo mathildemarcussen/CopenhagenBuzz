@@ -9,6 +9,14 @@
     android:id="@+id/content_main"
     layout="@layout/content_main" />
 
+    <View
+        android:id="@+id/swipeArea"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:background="@android:color/transparent"/>
+
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"

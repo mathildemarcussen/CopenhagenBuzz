@@ -29,7 +29,10 @@ import android.icu.util.Calendar
 import android.icu.util.TimeZone
 import android.os.Bundle
 import android.util.Log
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
+import android.view.GestureDetector.SimpleOnGestureListener
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
@@ -63,6 +66,7 @@ class MainActivity : AppCompatActivity() {
     /**
      * ViewBindings used to make the interaction between the code and our views easier.
      */
+    private lateinit var gestureDetector: GestureDetector
     private lateinit var binding: ActivityMainBinding
     private lateinit var customBinding: ContentMainBinding
     private lateinit var bottomBinding: BottomSheetContentBinding
@@ -108,7 +112,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         customBinding = ContentMainBinding.inflate(layoutInflater)
-
         //bottomBinding = BottomSheetContentBinding.inflate(layoutInflater)
 
         // Getting the reference to the date picker UI element
@@ -165,47 +168,66 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onFling(
+                e1: MotionEvent?,
+                e2: MotionEvent,
+                velocityX: Float,
+                velocityY: Float
+            ): Boolean {
+                if (e1 != null && e2 != null) {
+                    val deltaY = e2.y - e1.y
+                    if (deltaY < -100) { // Swipe up detected
+                        val myBottomSheet = ModalBottomSheet()
+                        myBottomSheet.show(supportFragmentManager, ModalBottomSheet.TAG)
+                        return true
+                    }
+                }
+                return false            }
+        })
+
+
+
+        val swipeArea = findViewById<View>(R.id.swipeArea)
+        swipeArea.setOnTouchListener{_, event ->
+            gestureDetector.onTouchEvent(event)
+            true
+        }
+
         val myBottomSheet = ModalBottomSheet()
         myBottomSheet.show(supportFragmentManager, ModalBottomSheet.TAG)
 
+        val bottomSheet: View = findViewById(R.id.standard_bottom_sheet)
+        val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
 
+        // Initially hide it
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 
-        /*
-        val bottomSheet: View? = customBinding.root.findViewById(R.id.standard_bottom_sheet)
-
-        if (bottomSheet != null) {
-            val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
-
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-
-            bottomSheetBehavior.isHideable = true
-            bottomSheetBehavior.peekHeight = 500
-
-            bottomSheetBehavior.addBottomSheetCallback(object :
-                BottomSheetBehavior.BottomSheetCallback() {
-                override fun onStateChanged(bottomsheet: View, newState: Int) {
-                    when (newState) {
-                        BottomSheetBehavior.STATE_EXPANDED -> {
-                            bottomSheet.visibility = View.VISIBLE
-                        }
-
-                        BottomSheetBehavior.STATE_COLLAPSED -> {
-                            bottomSheet.visibility = View.INVISIBLE
-                        }
-
-                        BottomSheetBehavior.STATE_HIDDEN -> {
-                            bottomSheet.visibility = View.INVISIBLE
-                        }
-                    }
+        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                when (newState) {
+                    BottomSheetBehavior.STATE_EXPANDED -> Log.d(TAG, "Bottom Sheet Expanded")
+                    BottomSheetBehavior.STATE_COLLAPSED -> Log.d(TAG, "Bottom Sheet Collapsed")
+                    BottomSheetBehavior.STATE_HIDDEN -> Log.d(TAG, "Bottom Sheet Hidden")
                 }
+            }
 
-                override fun onSlide(bottomSheet: View, slideOffSet: Float) {
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                // Handle sliding effects if needed
+            }
+        })
 
-                }
-            })
-        }else{
-        Log.e("MainActivity", "FEJL: standard_bottom_sheet blev ikke fundet!")
+        // Show the bottom sheet when the user swipes up
+        /*binding.someButton.setOnClickListener {
+            if (bottomSheet == null) {
+                bottomSheet = ModalBottomSheet()
+            }
+
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }*/
+
+
+
 
     }
 
