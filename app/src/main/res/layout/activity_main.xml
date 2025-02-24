@@ -8,6 +8,8 @@
     <include
     android:id="@+id/content_main"
     layout="@layout/content_main" />
+    <include
+        layout="@layout/bottom_sheet_content"/>
 
     <View
         android:id="@+id/swipeArea"
