@@ -33,7 +33,9 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         inflater.inflate(R.layout.bottom_sheet_content, container, false)
+        bottomBinding = BottomSheetContentBinding.inflate(inflater)
         return bottomBinding.root
+
     }
 
 
@@ -50,13 +52,17 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
 
         eventTypeDropdown.setAdapter(adapter)
 
-        val bottomSheetDialog = dialog as? BottomSheetDialog
-    val bottomSheet = bottomSheetDialog?.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+        createTypePicker()
+        createEvent()
 
-    if(bottomSheet != null) {
-    val behavior = BottomSheetBehavior.from(bottomSheet)
-    behavior.state = BottomSheetBehavior.STATE_EXPANDED
-    }
+        val bottomSheetDialog = dialog as? BottomSheetDialog
+        val bottomSheet = bottomSheetDialog?.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+
+        if(bottomSheet != null) {
+            val behavior = BottomSheetBehavior.from(bottomSheet)
+            behavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+
 
     }
 
@@ -109,6 +115,9 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
      * and updates the event object.
      */
     private fun createEvent() {
+
+        Log.d(TAG, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaaaaaa")
+
         //Initializes the user inputs as variables
         bottomBinding.fabAddEvent.setOnClickListener { view ->
             val eventName = bottomBinding.editTextEventName.text.toString()
