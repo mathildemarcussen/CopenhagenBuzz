@@ -7,7 +7,15 @@
 
     <include
     android:id="@+id/content_main"
-    layout="@layout/content_main" />
+    layout="@layout/content_main"/>
+    
+     <FrameLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/bottomNav"
+            />
+
 
     <View
         android:id="@+id/swipeArea"

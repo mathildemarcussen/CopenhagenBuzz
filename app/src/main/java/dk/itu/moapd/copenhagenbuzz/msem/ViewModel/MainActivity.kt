@@ -41,6 +41,13 @@ import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.util.component1
 import androidx.core.util.component2
+import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.ActivityMainBinding
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.ContentMainBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -51,9 +58,13 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
+import dk.itu.moapd.copenhagenbuzz.msem.CalendarFragment
+import dk.itu.moapd.copenhagenbuzz.msem.FavoritesFragment
+import dk.itu.moapd.copenhagenbuzz.msem.MapsFragment
 import dk.itu.moapd.copenhagenbuzz.msem.ModalBottomSheet
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.R
+import dk.itu.moapd.copenhagenbuzz.msem.TimelineFragment
 import dk.itu.moapd.copenhagenbuzz.msem.View.LoginActivity
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.BottomSheetContentBinding
 
@@ -84,12 +95,15 @@ class MainActivity : AppCompatActivity() {
     /**
      * A set of private variables used in the class.
      */
+
     private lateinit var eventName: EditText
     private lateinit var eventLocation: EditText
     private lateinit var eventDate: EditText
     private lateinit var dateRangeField: TextInputEditText
     private lateinit var eventType: String
     private lateinit var eventDescription: EditText
+
+
     var isLoggedIn: Boolean = false
 
 
@@ -117,13 +131,21 @@ class MainActivity : AppCompatActivity() {
         // Getting the reference to the date picker UI element
         dateRangeField = findViewById(R.id.edit_text_event_date)
 
+        val navHostFragment = supportFragmentManager
+            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navController = navHostFragment.navController
+
+        binding.bottomNavigation.setupWithNavController(navController)
+
+
+
         //Sets up the type picker dropdown menu
-        createTypePicker()
+        //createTypePicker()
         //Listener for user interaction in the `Add Event ` button.
-        createEvent()
+        //createEvent()
 
         // Sets up the DatePicker
-        DateRangePicker()
+        //DateRangePicker()
 
         // Find and sssigns a reference to the imagebutton
         val userButton = findViewById<ImageButton>(R.id.login)
@@ -143,24 +165,27 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
-
-        NavigationBarView.OnItemSelectedListener { item ->
+        replaceFragment(TimelineFragment())
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.item_1 -> {
-                    // Respond to navigation item 1 click
+                    replaceFragment(TimelineFragment())
                     true
                 }
 
                 R.id.item_2 -> {
-                    // Respond to navigation item 2 click
+                    replaceFragment(FavoritesFragment())
+                    Log.d(TAG, "Navigated to Favorites tab succesfully")
                     true
                 }
 
                 R.id.item_3 -> {
+                    replaceFragment(MapsFragment())
                     true
                 }
 
                 R.id.item_4 -> {
+                    replaceFragment(CalendarFragment())
                     true
                 }
 
@@ -227,9 +252,16 @@ class MainActivity : AppCompatActivity() {
         }*/
 
 
+    }
 
+    private fun replaceFragment(fragment : Fragment){
+        val fragmentManager = supportFragmentManager
+        val fragmentTransaction = fragmentManager.beginTransaction()
+        fragmentTransaction.replace(R.id.container, fragment)
+        fragmentTransaction.commit()
 
     }
+
 
     /**
      * This Method determines which pivture is shown for the icon wether it is a
@@ -247,6 +279,8 @@ class MainActivity : AppCompatActivity() {
      * Sets up the listener for the "Add Event" button to capture user inputs,
      * and updates the event object.
      */
+
+
     private fun createEvent() {
         //Initializes the user inputs as variables
         customBinding.fabAddEvent.setOnClickListener { view ->
@@ -273,6 +307,8 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+
+
 
     /**
      * Configures the dropdown menu for selecting an event type.
@@ -360,7 +396,9 @@ class MainActivity : AppCompatActivity() {
 
         }
 
+    }
+
 
     }
-}
+
 
