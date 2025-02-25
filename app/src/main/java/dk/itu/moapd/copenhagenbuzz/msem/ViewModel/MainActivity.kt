@@ -25,46 +25,62 @@
 package dk.itu.moapd.copenhagenbuzz.msem.ViewModel
 
 import android.content.Intent
-import android.graphics.Color
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
+import android.view.GestureDetector.SimpleOnGestureListener
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.util.component1
 import androidx.core.util.component2
+import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.ActivityMainBinding
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.ContentMainBinding
-import androidx.core.view.WindowCompat
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
+import dk.itu.moapd.copenhagenbuzz.msem.CalendarFragment
+import dk.itu.moapd.copenhagenbuzz.msem.FavoritesFragment
+import dk.itu.moapd.copenhagenbuzz.msem.MapsFragment
+import dk.itu.moapd.copenhagenbuzz.msem.ModalBottomSheet
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.R
+import dk.itu.moapd.copenhagenbuzz.msem.TimelineFragment
 import dk.itu.moapd.copenhagenbuzz.msem.View.LoginActivity
-import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion.TAG
+import dk.itu.moapd.copenhagenbuzz.msem.databinding.BottomSheetContentBinding
 
 
 /**
  * Activity class with methods that manage the  main activities of the CopenhagenBuzz app
  */
- class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
 
     /**
      * ViewBindings used to make the interaction between the code and our views easier.
      */
+    private lateinit var gestureDetector: GestureDetector
     private lateinit var binding: ActivityMainBinding
     private lateinit var customBinding: ContentMainBinding
+    private lateinit var bottomBinding: BottomSheetContentBinding
 
     /**
      * The companion object defines class level functions,
@@ -79,14 +95,16 @@ import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion.TAG
     /**
      * A set of private variables used in the class.
      */
+
     private lateinit var eventName: EditText
     private lateinit var eventLocation: EditText
     private lateinit var eventDate: EditText
     private lateinit var dateRangeField: TextInputEditText
     private lateinit var eventType: String
     private lateinit var eventDescription: EditText
-    var isLoggedIn: Boolean = false
 
+
+    var isLoggedIn: Boolean = false
 
 
     /**
@@ -108,18 +126,26 @@ import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion.TAG
         setContentView(binding.root)
 
         customBinding = ContentMainBinding.inflate(layoutInflater)
-        setContentView(customBinding.root)
+        //bottomBinding = BottomSheetContentBinding.inflate(layoutInflater)
 
         // Getting the reference to the date picker UI element
         dateRangeField = findViewById(R.id.edit_text_event_date)
 
+        val navHostFragment = supportFragmentManager
+            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navController = navHostFragment.navController
+
+        binding.bottomNavigation.setupWithNavController(navController)
+
+
+
         //Sets up the type picker dropdown menu
-        createTypePicker()
+        //createTypePicker()
         //Listener for user interaction in the `Add Event ` button.
-        createEvent()
+        //createEvent()
 
         // Sets up the DatePicker
-        DateRangePicker()
+        //DateRangePicker()
 
         // Find and sssigns a reference to the imagebutton
         val userButton = findViewById<ImageButton>(R.id.login)
@@ -139,9 +165,103 @@ import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion.TAG
             startActivity(intent)
             finish()
         }
+        replaceFragment(TimelineFragment())
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.item_1 -> {
+                    replaceFragment(TimelineFragment())
+                    true
+                }
+
+                R.id.item_2 -> {
+                    replaceFragment(FavoritesFragment())
+                    Log.d(TAG, "Navigated to Favorites tab succesfully")
+                    true
+                }
+
+                R.id.item_3 -> {
+                    replaceFragment(MapsFragment())
+                    true
+                }
+
+                R.id.item_4 -> {
+                    replaceFragment(CalendarFragment())
+                    true
+                }
+
+                else -> false
+            }
+        }
+
+        gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onFling(
+                e1: MotionEvent?,
+                e2: MotionEvent,
+                velocityX: Float,
+                velocityY: Float
+            ): Boolean {
+                if (e1 != null && e2 != null) {
+                    val deltaY = e2.y - e1.y
+                    if (deltaY < -100) { // Swipe up detected
+                        val myBottomSheet = ModalBottomSheet()
+                        myBottomSheet.show(supportFragmentManager, ModalBottomSheet.TAG)
+                        return true
+                    }
+                }
+                return false            }
+        })
+
+
+
+        val swipeArea = findViewById<View>(R.id.swipeArea)
+        swipeArea.setOnTouchListener{_, event ->
+            gestureDetector.onTouchEvent(event)
+            true
+        }
+
+        val myBottomSheet = ModalBottomSheet()
+        myBottomSheet.show(supportFragmentManager, ModalBottomSheet.TAG)
+
+        val bottomSheet: View = findViewById(R.id.standard_bottom_sheet)
+        val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
+
+        // Initially hide it
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+
+        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                when (newState) {
+                    BottomSheetBehavior.STATE_EXPANDED -> Log.d(TAG, "Bottom Sheet Expanded")
+                    BottomSheetBehavior.STATE_COLLAPSED -> Log.d(TAG, "Bottom Sheet Collapsed")
+                    BottomSheetBehavior.STATE_HIDDEN -> Log.d(TAG, "Bottom Sheet Hidden")
+                }
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                // Handle sliding effects if needed
+            }
+        })
+
+        // Show the bottom sheet when the user swipes up
+        /*binding.someButton.setOnClickListener {
+            if (bottomSheet == null) {
+                bottomSheet = ModalBottomSheet()
+            }
+
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }*/
 
 
     }
+
+    private fun replaceFragment(fragment : Fragment){
+        val fragmentManager = supportFragmentManager
+        val fragmentTransaction = fragmentManager.beginTransaction()
+        fragmentTransaction.replace(R.id.container, fragment)
+        fragmentTransaction.commit()
+
+    }
+
 
     /**
      * This Method determines which pivture is shown for the icon wether it is a
@@ -159,6 +279,8 @@ import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion.TAG
      * Sets up the listener for the "Add Event" button to capture user inputs,
      * and updates the event object.
      */
+
+
     private fun createEvent() {
         //Initializes the user inputs as variables
         customBinding.fabAddEvent.setOnClickListener { view ->
@@ -185,6 +307,8 @@ import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion.TAG
         }
 
     }
+
+
 
     /**
      * Configures the dropdown menu for selecting an event type.
@@ -256,16 +380,15 @@ import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion.TAG
         /** Sets up a click listener that arranges the dates in the correct order
          * and saves the values to the event date field
          */
-        dateRangePicker.addOnPositiveButtonClickListener{selection ->
+        dateRangePicker.addOnPositiveButtonClickListener { selection ->
             // The value returned when the user have chosen the dates and clicked save
             val (startDate, endDate) = selection
 
             // Formatting the date
             val format = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
             val startString = format.format(startDate)
-            val endString   = format.format(endDate)
+            val endString = format.format(endDate)
             val string: String = getString(R.string.date_range, startString, endString)
-
 
 
             // setting the text field  with a start date and an end date
@@ -273,8 +396,9 @@ import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion.TAG
 
         }
 
+    }
 
 
     }
-}
+
 
