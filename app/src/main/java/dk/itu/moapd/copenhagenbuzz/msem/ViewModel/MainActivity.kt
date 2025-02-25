@@ -82,7 +82,7 @@ class MainActivity : AppCompatActivity() {
      * A set of private variables used in the class.
      */
 
-    private lateinit var dateRangeField: TextInputEditText
+
     private lateinit var eventType: String
     var isLoggedIn: Boolean = false
 
@@ -106,15 +106,7 @@ class MainActivity : AppCompatActivity() {
 
         customBinding = ContentMainBinding.inflate(layoutInflater)
 
-        // Getting the reference to the date picker UI element
-        dateRangeField = findViewById(R.id.edit_text_event_date)
 
-        //Sets up the type picker dropdown menu
-        //createTypePicker()
-        //Listener for user interaction in the `Add Event ` button.
-
-        // Sets up the DatePicker
-        DateRangePicker()
 
         // Find and sssigns a reference to the imagebutton
         val userButton = findViewById<ImageButton>(R.id.login)
@@ -221,64 +213,5 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-    /**
-     * function creates a pop-up window with a calendar when the choose date field is clicked
-     * this date range picker is taken from material components
-     * "https://github.com/material-components/material-components-android/blob/master/docs/components/DatePicker.md"
-     * When choosing a range of dates, the method will return this ranges in the event date field
-     */
-    fun DateRangePicker() {
-        //Checks todays date to make the calendar starts at today. And to constrain the calendar from beginning to end of the year.
-        val today = MaterialDatePicker.todayInUtcMilliseconds()
-        val calender = Calendar.getInstance(TimeZone.getFrozenTimeZone("UTC"))
-
-        calender.timeInMillis = today
-        calender[Calendar.MONTH] = Calendar.JANUARY
-        val janThisYear = calender.timeInMillis
-
-        calender.timeInMillis = today
-        calender[Calendar.MONTH] = Calendar.DECEMBER
-        val decThisYear = calender.timeInMillis
-
-        //The constraintbuilder sets the point we start at and that we can only choose dates later than today
-        val constraintsBuilder = CalendarConstraints.Builder()
-            .setStart(janThisYear)
-            .setEnd(decThisYear)
-            .setValidator(DateValidatorPointForward.now())
-
-        val dateRangePicker = MaterialDatePicker.Builder.dateRangePicker()
-            .setTitleText(getText(R.string.event_date))
-
-            .setInputMode(MaterialDatePicker.INPUT_MODE_TEXT)
-            .setCalendarConstraints(constraintsBuilder.build())
-            .build()
-
-        // Sets up a click listener so the calendar prompt appears when accessing the field.
-        dateRangeField.setOnClickListener {
-            dateRangePicker.show(supportFragmentManager, "date_range_picker")
-        }
-
-        /** Sets up a click listener that arranges the dates in the correct order
-         * and saves the values to the event date field
-         */
-        dateRangePicker.addOnPositiveButtonClickListener { selection ->
-            // The value returned when the user have chosen the dates and clicked save
-            val (startDate, endDate) = selection
-
-            // Formatting the date
-            val format = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
-            val startString = format.format(startDate)
-            val endString = format.format(endDate)
-            val string: String = getString(R.string.date_range, startString, endString)
-
-
-            // setting the text field  with a start date and an end date
-            dateRangeField.setText(string)
-
-        }
-
-
-    }
 }
 

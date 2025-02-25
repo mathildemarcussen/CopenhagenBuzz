@@ -1,4 +1,6 @@
 package dk.itu.moapd.copenhagenbuzz.msem
+import android.icu.util.Calendar
+import android.icu.util.TimeZone
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,9 +11,15 @@ import android.widget.AutoCompleteTextView
 import android.widget.EditText
 import androidx.compose.material3.Snackbar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.util.component1
+import androidx.core.util.component2
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.datepicker.CalendarConstraints
+import com.google.android.material.datepicker.DateValidatorPointForward
+import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.textfield.TextInputEditText
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity
 import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion
@@ -25,6 +33,7 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
     private lateinit var eventDate: EditText
     private lateinit var eventDescription: EditText
     private lateinit var eventType: String
+    private lateinit var dateRangeField: TextInputEditText
 
 
     override fun onCreateView(
@@ -41,7 +50,7 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?){
     super.onViewCreated(view, savedInstanceState)
-        bottomBinding = BottomSheetContentBinding.inflate(layoutInflater)
+        //bottomBinding = BottomSheetContentBinding.inflate(layoutInflater)
         bottomBinding.editTextEventName.setText(event.eventName)
         bottomBinding.editTextEventLocation.setText(event.eventLocation)
 
@@ -53,6 +62,19 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
         eventTypeDropdown.setAdapter(adapter)
 
         createTypePicker()
+
+
+        // Getting the reference to the date picker UI element
+        dateRangeField = bottomBinding.editTextEventDate
+
+
+        //Sets up the type picker dropdown menu
+        //createTypePicker()
+        //Listener for user interaction in the `Add Event ` button.
+
+        // Sets up the DatePicker
+        DateRangePicker()
+
         createEvent()
 
         val bottomSheetDialog = dialog as? BottomSheetDialog
@@ -138,6 +160,7 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
                 Log.d(TAG, "Event created ${event}")
 
             }
+
         }
 
     }
@@ -165,6 +188,66 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
         eventTypeMenu.setOnItemClickListener { adapterView, _, position, _ ->
             eventType = adapterView.getItemAtPosition(position) as String
         }
+    }
+
+
+    /**
+     * function creates a pop-up window with a calendar when the choose date field is clicked
+     * this date range picker is taken from material components
+     * "https://github.com/material-components/material-components-android/blob/master/docs/components/DatePicker.md"
+     * When choosing a range of dates, the method will return this ranges in the event date field
+     */
+    fun DateRangePicker() {
+        //Checks todays date to make the calendar starts at today. And to constrain the calendar from beginning to end of the year.
+        val today = MaterialDatePicker.todayInUtcMilliseconds()
+        val calender = Calendar.getInstance(TimeZone.getFrozenTimeZone("UTC"))
+
+        calender.timeInMillis = today
+        calender[Calendar.MONTH] = Calendar.JANUARY
+        val janThisYear = calender.timeInMillis
+
+        calender.timeInMillis = today
+        calender[Calendar.MONTH] = Calendar.DECEMBER
+        val decThisYear = calender.timeInMillis
+
+        //The constraintbuilder sets the point we start at and that we can only choose dates later than today
+        val constraintsBuilder = CalendarConstraints.Builder()
+            .setStart(janThisYear)
+            .setEnd(decThisYear)
+            .setValidator(DateValidatorPointForward.now())
+
+        val dateRangePicker = MaterialDatePicker.Builder.dateRangePicker()
+            .setTitleText(getText(R.string.event_date))
+
+            .setInputMode(MaterialDatePicker.INPUT_MODE_TEXT)
+            .setCalendarConstraints(constraintsBuilder.build())
+            .build()
+
+        // Sets up a click listener so the calendar prompt appears when accessing the field.
+        dateRangeField.setOnClickListener {
+            dateRangePicker.show(parentFragmentManager, "date_range_picker")
+        }
+
+        /** Sets up a click listener that arranges the dates in the correct order
+         * and saves the values to the event date field
+         */
+        dateRangePicker.addOnPositiveButtonClickListener { selection ->
+            // The value returned when the user have chosen the dates and clicked save
+            val (startDate, endDate) = selection
+
+            // Formatting the date
+            val format = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
+            val startString = format.format(startDate)
+            val endString = format.format(endDate)
+            val string: String = getString(R.string.date_range, startString, endString)
+
+
+            // setting the text field  with a start date and an end date
+            dateRangeField.setText(string)
+
+        }
+
+
     }
 
 
