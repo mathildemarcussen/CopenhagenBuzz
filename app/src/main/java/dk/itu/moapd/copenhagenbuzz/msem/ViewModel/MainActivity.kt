@@ -144,6 +144,25 @@ class MainActivity : AppCompatActivity() {
             finish()
         }
         replaceFragment(TimelineFragment())
+
+        makeNavigationBar()
+
+        if (isLoggedIn) {
+            makeBottomSheet()
+        }
+
+
+
+    }
+
+    private fun replaceFragment(fragment : Fragment){
+        val fragmentManager = supportFragmentManager
+        val fragmentTransaction = fragmentManager.beginTransaction()
+        fragmentTransaction.replace(R.id.container, fragment)
+        fragmentTransaction.commit()
+
+    }
+    private fun makeNavigationBar() {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.item_1 -> {
@@ -170,29 +189,12 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
+    }
 
-        gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
-            override fun onFling(
-                e1: MotionEvent?,
-                e2: MotionEvent,
-                velocityX: Float,
-                velocityY: Float
-            ): Boolean {
-                if (e1 != null && e2 != null) {
-                    val deltaY = e2.y - e1.y
-                    if (deltaY < -100) { // Swipe up detected
-                        val myBottomSheet = ModalBottomSheet()
-                        myBottomSheet.show(supportFragmentManager, ModalBottomSheet.TAG)
-                        return true
-                    }
-                }
-                return false            }
-        })
-
-
-
+    private fun makeBottomSheet() {
+        makeGestureDetector()
         val swipeArea = findViewById<View>(R.id.swipeArea)
-        swipeArea.setOnTouchListener{_, event ->
+        swipeArea.setOnTouchListener { _, event ->
             gestureDetector.onTouchEvent(event)
             true
         }
@@ -206,7 +208,8 @@ class MainActivity : AppCompatActivity() {
         // Initially hide it
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 
-        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+        bottomSheetBehavior.addBottomSheetCallback(object :
+            BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 when (newState) {
                     BottomSheetBehavior.STATE_EXPANDED -> Log.d(TAG, "Bottom Sheet Expanded")
@@ -219,25 +222,28 @@ class MainActivity : AppCompatActivity() {
                 // Handle sliding effects if needed
             }
         })
-
-        // Show the bottom sheet when the user swipes up
-        /*binding.someButton.setOnClickListener {
-            if (bottomSheet == null) {
-                bottomSheet = ModalBottomSheet()
-            }
-
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-        }*/
-
-
     }
 
-    private fun replaceFragment(fragment : Fragment){
-        val fragmentManager = supportFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.container, fragment)
-        fragmentTransaction.commit()
-
+    private fun makeGestureDetector() {
+        gestureDetector =
+            GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+                override fun onFling(
+                    e1: MotionEvent?,
+                    e2: MotionEvent,
+                    velocityX: Float,
+                    velocityY: Float
+                ): Boolean {
+                    if (e1 != null && e2 != null) {
+                        val deltaY = e2.y - e1.y
+                        if (deltaY < -100) { // Swipe up detected
+                            val myBottomSheet = ModalBottomSheet()
+                            myBottomSheet.show(supportFragmentManager, ModalBottomSheet.TAG)
+                            return true
+                        }
+                    }
+                    return false
+                }
+            })
     }
 
 
