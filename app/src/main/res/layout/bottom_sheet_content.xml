@@ -1,37 +1,199 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Denne container bliver styret af BottomSheetBehavior -->
-    <FrameLayout
-        android:id="@+id/bottom_sheet"
+
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:elevation="16dp"
+        android:outlineProvider="bounds"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/white"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-        android:elevation="4dp">
+        android:background="@color/lavender_mist"
+        >
 
-        <!-- Indholdet i dit Bottom Sheet (RecyclerView, tekst, knapper osv.) -->
-        <LinearLayout
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:minHeight="?attr/actionBarSize"
+            >
 
-            <!-- Eksempel: En TextView -->
             <TextView
-                android:id="@+id/bs_title"
+                style="?textAppearanceHeadlineSmall"
+                android:id="@+id/text_view_app_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Hej fra BottomSheet"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="100dp"
+                android:layout_marginEnd="70dp"
+                android:text= "@string/app_name"
+                android:gravity="center_horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-            <!-- Her kunne også være en RecyclerView, etc. -->
+            <ImageButton
+                android:id="@+id/login"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/baseline_login_24"
+                android:contentDescription="@string/app_name"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                tools:ignore="ButtonStyle"
+                android:gravity="end"
+                />
+        </androidx.appcompat.widget.Toolbar>
 
-        </LinearLayout>
-    </FrameLayout>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/text_field_event_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:hint="@string/event_name"
+        app:startIconDrawable="@drawable/baseline_festival_24"
+        app:endIconMode="clear_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appbar">
+
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_text_event_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/text_field_event_location"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:hint="@string/event_location"
+        app:startIconDrawable="@drawable/baseline_add_location_alt_24"
+        app:endIconMode="clear_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_field_event_name">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_text_event_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/text_field_event_date"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:hint="@string/event_date"
+        app:startIconDrawable="@drawable/baseline_date_range_24"
+        app:endIconMode="clear_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_field_event_location">
+
+
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_text_event_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/text_field_event_type"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:hint="@string/event_type"
+        app:startIconDrawable="@drawable/baseline_celebration_24"
+        app:endIconMode="dropdown_menu"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_field_event_date">
+
+
+
+        <AutoCompleteTextView
+            android:id="@+id/event_type_menu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/text_field_event_description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:hint="@string/event_description"
+        app:endIconMode="clear_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_field_event_type">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_text_event_discription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top"
+            android:inputType="text"
+            android:maxHeight="400dp"
+            android:minHeight="150dp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_event"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_marginEnd="30dp"
+        android:layout_marginTop="10dp"
+
+        app:srcCompat="@drawable/baseline_add_24"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_field_event_description" />
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
