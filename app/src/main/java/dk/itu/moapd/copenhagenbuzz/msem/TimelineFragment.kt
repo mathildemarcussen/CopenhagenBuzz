@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.FragmentMapsBinding
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.FragmentTimelineBinding
 
@@ -37,12 +38,15 @@ class TimelineFragment : Fragment() {
         }
     }
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? = FragmentTimelineBinding.inflate(inflater, container, false).also {
         _binding = it
     }.root
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()

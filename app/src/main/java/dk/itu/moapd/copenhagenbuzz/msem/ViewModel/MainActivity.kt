@@ -39,6 +39,13 @@ import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.util.component1
 import androidx.core.util.component2
+import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.ActivityMainBinding
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.ContentMainBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -49,9 +56,13 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
+import dk.itu.moapd.copenhagenbuzz.msem.CalendarFragment
+import dk.itu.moapd.copenhagenbuzz.msem.FavoritesFragment
+import dk.itu.moapd.copenhagenbuzz.msem.MapsFragment
 import dk.itu.moapd.copenhagenbuzz.msem.ModalBottomSheet
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.R
+import dk.itu.moapd.copenhagenbuzz.msem.TimelineFragment
 import dk.itu.moapd.copenhagenbuzz.msem.View.LoginActivity
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.BottomSheetContentBinding
 
@@ -84,6 +95,7 @@ class MainActivity : AppCompatActivity() {
 
 
     private lateinit var eventType: String
+
     var isLoggedIn: Boolean = false
 
 
@@ -106,6 +118,11 @@ class MainActivity : AppCompatActivity() {
 
         customBinding = ContentMainBinding.inflate(layoutInflater)
 
+        val navHostFragment = supportFragmentManager
+            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navController = navHostFragment.navController
+
+        binding.bottomNavigation.setupWithNavController(navController)
 
 
         // Find and sssigns a reference to the imagebutton
@@ -126,24 +143,27 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
-
-        NavigationBarView.OnItemSelectedListener { item ->
+        replaceFragment(TimelineFragment())
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.item_1 -> {
-                    // Respond to navigation item 1 click
+                    replaceFragment(TimelineFragment())
                     true
                 }
 
                 R.id.item_2 -> {
-                    // Respond to navigation item 2 click
+                    replaceFragment(FavoritesFragment())
+                    Log.d(TAG, "Navigated to Favorites tab succesfully")
                     true
                 }
 
                 R.id.item_3 -> {
+                    replaceFragment(MapsFragment())
                     true
                 }
 
                 R.id.item_4 -> {
+                    replaceFragment(CalendarFragment())
                     true
                 }
 
@@ -199,7 +219,27 @@ class MainActivity : AppCompatActivity() {
                 // Handle sliding effects if needed
             }
         })
+
+        // Show the bottom sheet when the user swipes up
+        /*binding.someButton.setOnClickListener {
+            if (bottomSheet == null) {
+                bottomSheet = ModalBottomSheet()
+            }
+
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }*/
+
+
     }
+
+    private fun replaceFragment(fragment : Fragment){
+        val fragmentManager = supportFragmentManager
+        val fragmentTransaction = fragmentManager.beginTransaction()
+        fragmentTransaction.replace(R.id.container, fragment)
+        fragmentTransaction.commit()
+
+    }
+
 
     /**
      * This Method determines which pivture is shown for the icon wether it is a
@@ -212,6 +252,4 @@ class MainActivity : AppCompatActivity() {
             userButton.setImageResource(R.drawable.baseline_account_circle_24) // Login icon
         }
     }
-
 }
-
