@@ -5,6 +5,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ListView
+import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
+import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.EventAdapter
 import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.FragmentMapsBinding
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.FragmentTimelineBinding
@@ -47,6 +50,40 @@ class TimelineFragment : Fragment() {
     }.root
 
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.apply{
+            val data = listOf(
+                Event(
+                    eventName = "Copoaw",
+                    eventLocation = "Copenhagen",
+                    eventDate = "22 februar",
+                    eventType = "party :))",
+                    eventDescription = "aaaaaaaaaaaaaa"
+                ),
+                Event(
+                    eventName = "Copenhagen Light Festival",
+                    eventLocation = "Copenhagen",
+                    eventDate = "1 marts",
+                    eventType = "Festival",
+                    eventDescription = "Beautiful light instalations all over Copenahgen"
+                ),
+                Event(
+                    eventName = "Tate Mcrae",
+                    eventLocation = "Royal Arena",
+                    eventDate = "30 maj",
+                    eventType = "concert",
+                    eventDescription = "Pop Concert"
+                )
+            )
+
+            val adapter = EventAdapter(requireContext(), data )
+            val listView = view.findViewById<ListView>(R.id.list_view)
+            listView.adapter = adapter
+        }
+
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
