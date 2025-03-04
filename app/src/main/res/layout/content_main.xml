@@ -16,6 +16,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:elevation="16dp"
+        android:fitsSystemWindows="true"
         android:outlineProvider="bounds"
         android:background="@color/lavender_mist"
         >
@@ -23,7 +24,7 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="?attr/actionBarSize"
             android:minHeight="?attr/actionBarSize">
 
             <TextView

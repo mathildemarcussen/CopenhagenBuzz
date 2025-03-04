@@ -55,6 +55,7 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
         bottomBinding.editTextEventLocation.setText(event.eventLocation)
 
         (dialog as? BottomSheetDialog)?.behavior?.state = BottomSheetBehavior.STATE_EXPANDED
+
         val eventTypeDropdown = bottomBinding.eventTypeMenu // Use ViewBinding
         val eventTypes = resources.getStringArray(R.array.event_types)
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, eventTypes)
@@ -87,6 +88,21 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
 
 
     }
+    /*override fun onSaveInstanceState(outState: Bundle) {
+
+            bottomBinding.apply {
+
+                    outState.putString(eventName.toString(), textFieldEventName.editText.toString())
+
+                outState.putString(eventLocation.toString(),textFieldEventLocation.editText.toString() )
+                outState.putString(eventDate.toString(), textFieldEventDate.editText.toString())
+                outState.putString(eventType, textFieldEventType.editText.toString())
+                outState.putString(eventDescription.toString(), textFieldEventDescription.editText.toString())
+            }
+
+            super.onSaveInstanceState(outState)
+            Log.d(TAG, "onSaveInstanceState() method called.")
+        } */
 
     override fun onStart() {
         super.onStart()
@@ -137,8 +153,6 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
      * and updates the event object.
      */
     private fun createEvent() {
-
-        Log.d(TAG, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaaaaaa")
 
         //Initializes the user inputs as variables
         bottomBinding.fabAddEvent.setOnClickListener { view ->

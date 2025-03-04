@@ -181,9 +181,6 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        val myBottomSheet = ModalBottomSheet()
-        myBottomSheet.show(supportFragmentManager, ModalBottomSheet.TAG)
-
         val bottomSheet: View = findViewById(R.id.standard_bottom_sheet)
         val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
 
