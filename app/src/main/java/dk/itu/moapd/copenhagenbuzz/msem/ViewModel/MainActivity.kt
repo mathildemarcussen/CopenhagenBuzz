@@ -25,46 +25,27 @@
 package dk.itu.moapd.copenhagenbuzz.msem.ViewModel
 
 import android.content.Intent
-import android.icu.util.Calendar
-import android.icu.util.TimeZone
 import android.os.Bundle
 import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
-import android.view.GestureDetector.SimpleOnGestureListener
-import android.widget.Button
-import android.widget.EditText
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.util.component1
-import androidx.core.util.component2
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.ActivityMainBinding
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.ContentMainBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.datepicker.CalendarConstraints
-import com.google.android.material.datepicker.DateValidatorPointForward
-import com.google.android.material.datepicker.MaterialDatePicker
-import com.google.android.material.navigation.NavigationBarView
-import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.textfield.TextInputEditText
-import dk.itu.moapd.copenhagenbuzz.msem.CalendarFragment
-import dk.itu.moapd.copenhagenbuzz.msem.FavoritesFragment
-import dk.itu.moapd.copenhagenbuzz.msem.MapsFragment
-import dk.itu.moapd.copenhagenbuzz.msem.ModalBottomSheet
-import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
+import dk.itu.moapd.copenhagenbuzz.msem.View.CalendarFragment
+import dk.itu.moapd.copenhagenbuzz.msem.View.FavoritesFragment
+import dk.itu.moapd.copenhagenbuzz.msem.View.MapsFragment
+import dk.itu.moapd.copenhagenbuzz.msem.View.ModalBottomSheet
 import dk.itu.moapd.copenhagenbuzz.msem.R
-import dk.itu.moapd.copenhagenbuzz.msem.TimelineFragment
+import dk.itu.moapd.copenhagenbuzz.msem.View.TimelineFragment
 import dk.itu.moapd.copenhagenbuzz.msem.View.LoginActivity
-import dk.itu.moapd.copenhagenbuzz.msem.databinding.BottomSheetContentBinding
 
 
 /**
@@ -110,6 +91,7 @@ class MainActivity : AppCompatActivity() {
      * @param savedInstanceState The saved instance state if the activity is being re-initialized.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
 
         // Initialize ViewBindings
@@ -144,6 +126,25 @@ class MainActivity : AppCompatActivity() {
             finish()
         }
         replaceFragment(TimelineFragment())
+
+        makeNavigationBar()
+
+        if (isLoggedIn) {
+            makeBottomSheet()
+        }
+
+
+
+    }
+
+    private fun replaceFragment(fragment : Fragment){
+        val fragmentManager = supportFragmentManager
+        val fragmentTransaction = fragmentManager.beginTransaction()
+        fragmentTransaction.replace(R.id.container, fragment)
+        fragmentTransaction.commit()
+
+    }
+    private fun makeNavigationBar() {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.item_1 -> {
@@ -170,35 +171,15 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
+    }
 
-        gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
-            override fun onFling(
-                e1: MotionEvent?,
-                e2: MotionEvent,
-                velocityX: Float,
-                velocityY: Float
-            ): Boolean {
-                if (e1 != null && e2 != null) {
-                    val deltaY = e2.y - e1.y
-                    if (deltaY < -100) { // Swipe up detected
-                        val myBottomSheet = ModalBottomSheet()
-                        myBottomSheet.show(supportFragmentManager, ModalBottomSheet.TAG)
-                        return true
-                    }
-                }
-                return false            }
-        })
-
-
-
+    private fun makeBottomSheet() {
+        makeGestureDetector()
         val swipeArea = findViewById<View>(R.id.swipeArea)
-        swipeArea.setOnTouchListener{_, event ->
+        swipeArea.setOnTouchListener { _, event ->
             gestureDetector.onTouchEvent(event)
             true
         }
-
-        val myBottomSheet = ModalBottomSheet()
-        myBottomSheet.show(supportFragmentManager, ModalBottomSheet.TAG)
 
         val bottomSheet: View = findViewById(R.id.standard_bottom_sheet)
         val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
@@ -206,7 +187,8 @@ class MainActivity : AppCompatActivity() {
         // Initially hide it
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 
-        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+        bottomSheetBehavior.addBottomSheetCallback(object :
+            BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 when (newState) {
                     BottomSheetBehavior.STATE_EXPANDED -> Log.d(TAG, "Bottom Sheet Expanded")
@@ -219,25 +201,28 @@ class MainActivity : AppCompatActivity() {
                 // Handle sliding effects if needed
             }
         })
-
-        // Show the bottom sheet when the user swipes up
-        /*binding.someButton.setOnClickListener {
-            if (bottomSheet == null) {
-                bottomSheet = ModalBottomSheet()
-            }
-
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-        }*/
-
-
     }
 
-    private fun replaceFragment(fragment : Fragment){
-        val fragmentManager = supportFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.container, fragment)
-        fragmentTransaction.commit()
-
+    private fun makeGestureDetector() {
+        gestureDetector =
+            GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+                override fun onFling(
+                    e1: MotionEvent?,
+                    e2: MotionEvent,
+                    velocityX: Float,
+                    velocityY: Float
+                ): Boolean {
+                    if (e1 != null && e2 != null) {
+                        val deltaY = e2.y - e1.y
+                        if (deltaY < -100) { // Swipe up detected
+                            val myBottomSheet = ModalBottomSheet()
+                            myBottomSheet.show(supportFragmentManager, ModalBottomSheet.TAG)
+                            return true
+                        }
+                    }
+                    return false
+                }
+            })
     }
 
 

@@ -9,34 +9,34 @@
 
 
     <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:id="@+id/appbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:elevation="16dp"
+        android:fitsSystemWindows="true"
         android:outlineProvider="bounds"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:background="@color/lavender_mist"
         >
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="?attr/actionBarSize"
-            >
+            android:layout_height="?attr/actionBarSize"
+            android:minHeight="?attr/actionBarSize">
 
             <TextView
-                style="?textAppearanceHeadlineSmall"
                 android:id="@+id/text_view_app_name"
+                style="?textAppearanceHeadlineSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:layout_marginStart="100dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginEnd="70dp"
-                android:text= "@string/app_name"
                 android:gravity="center_horizontal"
+                android:text="@string/app_name"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -45,12 +45,11 @@
                 android:id="@+id/login"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:drawableLeft="@drawable/baseline_login_24"
-                android:contentDescription="@string/app_name"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                tools:ignore="ButtonStyle"
+                android:contentDescription="@string/app_name"
+                android:drawableLeft="@drawable/baseline_login_24"
                 android:gravity="end"
-                />
+                tools:ignore="ButtonStyle" />
         </androidx.appcompat.widget.Toolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
