@@ -1,4 +1,4 @@
-package dk.itu.moapd.copenhagenbuzz.msem
+package dk.itu.moapd.copenhagenbuzz.msem.View
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
 import android.os.Bundle
@@ -7,10 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import android.widget.EditText
-import androidx.compose.material3.Snackbar
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.util.component1
 import androidx.core.util.component2
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -21,8 +18,7 @@ import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.textfield.TextInputEditText
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
-import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity
-import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity.Companion
+import dk.itu.moapd.copenhagenbuzz.msem.R
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.BottomSheetContentBinding
 
 class ModalBottomSheet : BottomSheetDialogFragment() {

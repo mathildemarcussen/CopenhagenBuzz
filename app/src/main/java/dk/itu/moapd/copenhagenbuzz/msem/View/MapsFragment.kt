@@ -1,4 +1,4 @@
-package dk.itu.moapd.copenhagenbuzz.msem
+package dk.itu.moapd.copenhagenbuzz.msem.View
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment

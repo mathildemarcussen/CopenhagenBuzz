@@ -39,12 +39,12 @@ import androidx.navigation.ui.setupWithNavController
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.ActivityMainBinding
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.ContentMainBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import dk.itu.moapd.copenhagenbuzz.msem.CalendarFragment
-import dk.itu.moapd.copenhagenbuzz.msem.FavoritesFragment
-import dk.itu.moapd.copenhagenbuzz.msem.MapsFragment
-import dk.itu.moapd.copenhagenbuzz.msem.ModalBottomSheet
+import dk.itu.moapd.copenhagenbuzz.msem.View.CalendarFragment
+import dk.itu.moapd.copenhagenbuzz.msem.View.FavoritesFragment
+import dk.itu.moapd.copenhagenbuzz.msem.View.MapsFragment
+import dk.itu.moapd.copenhagenbuzz.msem.View.ModalBottomSheet
 import dk.itu.moapd.copenhagenbuzz.msem.R
-import dk.itu.moapd.copenhagenbuzz.msem.TimelineFragment
+import dk.itu.moapd.copenhagenbuzz.msem.View.TimelineFragment
 import dk.itu.moapd.copenhagenbuzz.msem.View.LoginActivity
 
 
