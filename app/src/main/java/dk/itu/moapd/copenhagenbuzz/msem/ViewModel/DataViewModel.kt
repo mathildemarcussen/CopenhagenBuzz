@@ -9,11 +9,15 @@ import kotlinx.coroutines.launch
 
 class DataViewModel : ViewModel() {
     lateinit var eventList : MutableLiveData<Event>
+    lateinit var favoriteList : MutableLiveData<Event>
     val events : LiveData<Event> get() = eventList
+    val favorites : LiveData<Event> get() = favoriteList
 
     fun resetCont() {
         val EmptyEvent = Event("","","","","")
         eventList.value = (EmptyEvent)
+        favoriteList.value = (EmptyEvent)
+
     }
 
     suspend fun fetchOrInit() {
@@ -23,7 +27,12 @@ class DataViewModel : ViewModel() {
             } else {
                 resetCont()
             }
-        }
+            if (favoriteList.isInitialized()){
+                favorites
+
+            }else {
+                resetCont()
+            }
     }
 
 
