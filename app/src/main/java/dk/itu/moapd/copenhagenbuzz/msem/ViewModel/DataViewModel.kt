@@ -21,21 +21,26 @@ class DataViewModel : ViewModel() {
     }
 
     suspend fun fetchOrInit() {
-        viewModelScope.launch{
+        viewModelScope.launch {
             if (eventList.isInitialized()) {
                 events
             } else {
                 resetCont()
             }
-            if (favoriteList.isInitialized()){
+            if (favoriteList.isInitialized()) {
                 favorites
 
-            }else {
+            } else {
                 resetCont()
             }
+        }
+
+
     }
 
-
-
+    private fun generateRandomFavorites(events: List <Event >): List <Event > {
+        val shuffledIndices = (events.indices).shuffled().take(1).sorted()
+        return shuffledIndices.mapNotNull { index -> events.getOrNull(index) }
+        }
 
 }

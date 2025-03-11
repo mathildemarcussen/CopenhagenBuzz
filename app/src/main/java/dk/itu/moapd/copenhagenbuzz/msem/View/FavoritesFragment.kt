@@ -5,6 +5,14 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ListView
+import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
+import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
+import dk.itu.moapd.copenhagenbuzz.msem.R
+import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.DataViewModel
+import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.EventAdapter
+import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.FavoriteEventAdapter
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.FragmentFavoritesBinding
 
 // TODO: Rename parameter arguments, choose names that match
@@ -22,8 +30,10 @@ class FavoritesFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
     private var _binding: FragmentFavoritesBinding? = null
+    private lateinit var adapter: FavoriteEventAdapter
+    private val viewModel: DataViewModel by viewModels()
 
-    private val binding
+    private var binding
         get() = requireNotNull(_binding) {
             "Cannot access binding because it is null. Is the view visible?"
         }
@@ -36,12 +46,33 @@ class FavoritesFragment : Fragment() {
         }
     }
 
+
+    fun onCreatedView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        binding = FragmentFavoritesBinding.inflate(inflater, container, false)
+
+        // Initialiser adapter med en tom liste
+        adapter = FavoriteEventAdapter(emptyList())
+
+        // Sæt adapter og layoutManager på RecyclerView
+        binding.favoriteListView.layoutManager = LinearLayoutManager(requireContext())
+        binding.favoriteListView.adapter = adapter
+
+        // Observer ViewModel's favorites-liste
+        viewModel.favorites.observe(viewLifecycleOwner) { favoriteEvents ->
+            adapter.updateData(favoriteEvents)
+        }
+
+        return binding.root
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? = FragmentFavoritesBinding.inflate(inflater, container, false).also {
         _binding = it
     }.root
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()
