@@ -1,5 +1,6 @@
 package dk.itu.moapd.copenhagenbuzz.msem.ViewModel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,25 +9,36 @@ import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import kotlinx.coroutines.launch
 
 class DataViewModel : ViewModel() {
-    lateinit var eventList : MutableLiveData<Event>
-    val events : LiveData<Event> get() = eventList
+    private var eventList = MutableLiveData<List<Event>>()
+    private var favoriteList = MutableLiveData<List<Event>>()
+    val _favorites : LiveData<List<Event>> get() = favoriteList
+    val _events: LiveData<List<Event>> get() = eventList
+
 
     fun resetCont() {
-        val EmptyEvent = Event("","","","","")
-        eventList.value = (EmptyEvent)
+        eventList.value = emptyList()
+        favoriteList.value = emptyList()
+
     }
 
-    suspend fun fetchOrInit() {
-        viewModelScope.launch{
-            if (eventList.isInitialized()) {
-                events
+    fun fetchOrInit() {
+        viewModelScope.launch {
+            if (eventList.isInitialized) {
+                _events
+            }
+            if (favoriteList.isInitialized) {
+                val favorites = generateRandomFavorites(eventList.value ?: emptyList())
+                favoriteList.postValue(favorites)
+                _favorites
             } else {
                 resetCont()
             }
         }
     }
 
-
-
+    private fun generateRandomFavorites(events: List <Event >): List <Event > {
+        val shuffledIndices = (events.indices).shuffled().take(2).sorted()
+        return shuffledIndices.mapNotNull { index -> events.getOrNull(index) }
+    }
 
 }
