@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
-import com.squareup.picasso.Picasso
 import dk.itu.moapd.copenhagenbuzz.msem.R
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.FavoriteRowItemBinding
 
@@ -44,7 +43,7 @@ class FavoriteEventAdapter (private var data: List<Event>) :
 
     // Opdater listen, hvis data ændres
     fun updateData(newData: List<Event>) {
-        data = newData
+        this.data = newData
         notifyDataSetChanged()
     }
 }

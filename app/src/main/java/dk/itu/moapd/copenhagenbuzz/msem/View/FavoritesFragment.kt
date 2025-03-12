@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ListView
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.R
 import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.DataViewModel
@@ -33,10 +34,7 @@ class FavoritesFragment : Fragment() {
     private lateinit var adapter: FavoriteEventAdapter
     private val viewModel: DataViewModel by viewModels()
 
-    private var binding
-        get() = requireNotNull(_binding) {
-            "Cannot access binding because it is null. Is the view visible?"
-        }
+    private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,7 +45,7 @@ class FavoritesFragment : Fragment() {
     }
 
 
-    fun onCreatedView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    /*fun onCreatedView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentFavoritesBinding.inflate(inflater, container, false)
 
         // Initialiser adapter med en tom liste
@@ -63,14 +61,60 @@ class FavoritesFragment : Fragment() {
         }
 
         return binding.root
-    }
+    } */
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? = FragmentFavoritesBinding.inflate(inflater, container, false).also {
-        _binding = it
-    }.root
+    ): View {
+        _binding = FragmentFavoritesBinding.inflate(inflater, container, false)
+
+        // Initialiser adapter med en tom liste
+        adapter = FavoriteEventAdapter(emptyList())
+
+        // Sæt adapter og layoutManager på RecyclerView
+        binding.favoriteRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.favoriteRecyclerView.adapter = adapter
+
+        // Observer ViewModel's favorites-liste
+        viewModel._favorites.observe(viewLifecycleOwner) { favoriteEvents ->
+            adapter.updateData(favoriteEvents ?: emptyList())
+        }
+
+        return binding.root
+    }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.apply{
+            val data = listOf(
+                Event(
+                    eventName = "Copoaw",
+                    eventLocation = "Copenhagen",
+                    eventDate = "22 februar",
+                    eventType = "party :))",
+                    eventDescription = "aaaaaaaaaaaaaa"
+                ),
+                Event(
+                    eventName = "Copenhagen Light Festival",
+                    eventLocation = "Copenhagen",
+                    eventDate = "1 marts",
+                    eventType = "Festival",
+                    eventDescription = "Beautiful light instalations all over Copenahgen"
+                ),
+                Event(
+                    eventName = "Tate Mcrae",
+                    eventLocation = "Royal Arena",
+                    eventDate = "30 maj",
+                    eventType = "concert",
+                    eventDescription = "Pop Concert"
+                )
+            )
+
+            val adapter = FavoriteEventAdapter(data)
+            binding.favoriteRecyclerView.adapter = adapter
+        }
+    }
 
 
 
