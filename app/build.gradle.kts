@@ -54,9 +54,5 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-<<<<<<< Updated upstream
-=======
-    implementation(libs.picasso)
     implementation(libs.firebase.bom)
->>>>>>> Stashed changes
 }
