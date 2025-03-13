@@ -1,6 +1,11 @@
 [versions]
 agp = "8.8.0"
 appcompatVersion = "1.4.1"
+<<<<<<< Updated upstream
+=======
+firebaseBom = "33.10.0"
+googleMaterial = "1.11.0"
+>>>>>>> Stashed changes
 kotlin = "1.9.24"
 coreKtx = "1.10.1"
 junit = "4.13.2"
@@ -18,12 +23,14 @@ legacySupportV4 = "1.0.0"
 navigationUiKtxVersion = "2.4.1"
 recyclerview = "1.3.0"
 material3Android = "1.3.1"
+google-services = "4.4.2"
 
 [libraries]
 androidx-appcompat-v141 = { module = "androidx.appcompat:appcompat", version.ref = "appcompatVersion" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-navigation-fragment-ktx-v241 = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragmentKtxVersion" }
 androidx-navigation-ui-ktx-v241 = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationUiKtxVersion" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -42,4 +49,5 @@ androidx-material3-android = { group = "androidx.compose.material3", name = "mat
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+google-services = {id = "com.google.gms.google-services", version.ref ="google-services"}
 

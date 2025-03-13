@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "168173742543",
+    "project_id": "copenhagenbuzz-51762",
+    "storage_bucket": "copenhagenbuzz-51762.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:168173742543:android:9df8be7918f90007944aba",
+        "android_client_info": {
+          "package_name": "dk.itu.moapd.copenhagenbuzz.msem"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvAeFTNcBYeeczhXgiDozxT_7hkrrAaVY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
