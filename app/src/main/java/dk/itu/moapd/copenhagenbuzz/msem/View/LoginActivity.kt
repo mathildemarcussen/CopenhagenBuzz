@@ -33,6 +33,11 @@ import dk.itu.moapd.copenhagenbuzz.msem.databinding.ActivityLoginBinding
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.ContentLoginBinding
 import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity
 import android.content.Intent
+import com.firebase.ui.auth.AuthUI
+import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
+import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
+import com.google.android.material.snackbar.Snackbar
+
 
 /**
  * Activity class with methods that manage the Login activities of the CopenhagenBuzz app
@@ -46,6 +51,50 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
 
     public var isLoggedIn: Boolean = false
+
+    private val signInLauncher =
+        registerForActivityResult(
+            FirebaseAuthUIActivityResultContract()
+        ) { result -> onSignInResult(result) }
+
+    private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
+            when (result.resultCode) {
+            RESULT_OK -> {
+                showSnackBar("User logged in the app.")
+                startMainActivity()
+            }
+        }
+    }
+
+
+    private fun startMainActivity() {
+        Intent(this, MainActivity::class.java).apply {
+            startActivity(this)
+            finish()
+        }
+    }
+
+    private fun createSignInIntent() {
+        val providers = arrayListOf(
+        AuthUI.IdpConfig.EmailBuilder().build(),
+        AuthUI.IdpConfig.PhoneBuilder().build(),
+        AuthUI.IdpConfig.GoogleBuilder().build()
+        )
+        val signInIntent = AuthUI.getInstance()
+            .createSignInIntentBuilder()
+            .setAvailableProviders(providers)
+            .setIsSmartLockEnabled(false)
+            .setLogo(R.drawable.logo)
+            .setTheme(R.style.Theme_CopenhagenBuzz)
+            .apply{
+                setTosAndPrivacyPolicyUrls(
+                    "https://firebase.google.com/terms/",
+                    "https://firebase.google.com/policies/…"
+                )
+            }
+            .build()
+        signInLauncher.launch(signInIntent)
+    }
 
     /**
      * Called when activity is starting.Initializes UI elements and event listeners.
@@ -67,6 +116,7 @@ class LoginActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        createSignInIntent()
 
         // Initialize ViewBindings
         customBinding = ContentLoginBinding.inflate(layoutInflater)
@@ -97,6 +147,12 @@ class LoginActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
+    }
+
+    private fun showSnackBar(message: String) {
+        Snackbar.make(
+            window.decorView.rootView, message, Snackbar.LENGTH_SHORT
+        ).show()
     }
 
 

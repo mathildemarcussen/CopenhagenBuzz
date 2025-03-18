@@ -28,6 +28,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.GestureDetector
+import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageButton
@@ -39,6 +40,7 @@ import androidx.navigation.ui.setupWithNavController
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.ActivityMainBinding
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.ContentMainBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.firebase.auth.FirebaseAuth
 import dk.itu.moapd.copenhagenbuzz.msem.View.CalendarFragment
 import dk.itu.moapd.copenhagenbuzz.msem.View.FavoritesFragment
 import dk.itu.moapd.copenhagenbuzz.msem.View.MapsFragment
@@ -59,6 +61,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var gestureDetector: GestureDetector
     private lateinit var binding: ActivityMainBinding
     private lateinit var customBinding: ContentMainBinding
+    private lateinit var auth: FirebaseAuth
 
     /**
      * The companion object defines class level functions,
@@ -114,7 +117,7 @@ class MainActivity : AppCompatActivity() {
         isLoggedIn = intent.getBooleanExtra("isLoggedIn", false)
 
         // Updates the userbutton based on the isLoggedIn value
-        updateUserIcon(userButton)
+        //updateUserIcon(userButton)
 
         /** Click lisnetner for the User button
          * Calls startActivity to launch LoginActivity
@@ -133,16 +136,36 @@ class MainActivity : AppCompatActivity() {
             makeBottomSheet()
         }
 
-
-
+        auth = FirebaseAuth.getInstance()
+        setSupportActionBar(binding.toolbar)
     }
+
+    /*override fun onOptionsItemSelected(item: MenuItem) :
+        Boolean = when (item.itemId) {
+            R.id.action_user_info -> {
+                UserInfoDialogFragment().apply {
+                    isCancelable = false
+                }.also {dialogFragment ->
+                    dialogFragment.show(supportFragmentManager, "UserInfoDialogFragment")
+                }
+                true
+            }
+            R.id.action_logout -> {
+                auth.signOut()
+                startLoginActivity()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+    }*/
+
+
+
 
     private fun replaceFragment(fragment : Fragment){
         val fragmentManager = supportFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
         fragmentTransaction.replace(R.id.container, fragment)
         fragmentTransaction.commit()
-
     }
     private fun makeNavigationBar() {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
@@ -237,4 +260,18 @@ class MainActivity : AppCompatActivity() {
             userButton.setImageResource(R.drawable.baseline_account_circle_24) // Login icon
         }
     }
+
+    override fun onStart() {
+        super.onStart()
+
+        auth.currentUser ?: startLoginActivity()
+    }
+
+    private fun startLoginActivity() {
+        Intent(this, LoginActivity::class.java).apply{
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }.let(::startActivity)
+    }
+
 }
