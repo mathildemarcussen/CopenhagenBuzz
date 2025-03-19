@@ -18,4 +18,5 @@
     <string name="text_label_2">Favorites</string>
     <string name="text_label_3">Maps</string>
     <string name="text_label_4">Calendar</string>
+    <string name="default_web_client_id">je</string>
 </resources>

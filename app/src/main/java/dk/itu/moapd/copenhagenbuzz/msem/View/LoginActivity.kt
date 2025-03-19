@@ -103,50 +103,8 @@ class LoginActivity : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Allows our UI to extand to the edges of the screen
-        enableEdgeToEdge()
-
-        // Loads the Ui from the activity login xml file
-        setContentView(R.layout.activity_login)
-
-        //Prevents UI overlap that enableEdgeToEdge() can cause
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
         createSignInIntent()
 
-        // Initialize ViewBindings
-        customBinding = ContentLoginBinding.inflate(layoutInflater)
-        setContentView(customBinding.root)
-
-        /** Click lisnetner for the login button
-         * When the login in button is clicked the boolean isLoggedIn is se to true
-         * Calls startActivity to launch MainActivity
-         * Calls finish to close LoginActivity
-         */
-        customBinding.login.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java).apply{
-            putExtra("isLoggedIn", true)
-            }
-            startActivity(intent)
-            finish()
-        }
-
-        /** Click lisnetner for the guest button
-         * When the guest in button is clicked the boolean isLoggedIn is se to false
-         * Calls startActivity to launch MainActivity
-         * Calls finish to close LoginActivity
-         */
-        customBinding.guest.setOnClickListener{
-            val intent = Intent(this, MainActivity::class.java).apply{
-            putExtra("isLoggedIn", false)
-            }
-            startActivity(intent)
-            finish()
-        }
     }
 
     private fun showSnackBar(message: String) {
