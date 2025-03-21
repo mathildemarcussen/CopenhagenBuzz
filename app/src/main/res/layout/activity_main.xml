@@ -9,54 +9,71 @@
     android:id="@+id/content_main"
     layout="@layout/content_main" />
 
-    <com.google.android.material.appbar.AppBarLayout
+
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/appbar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:elevation="16dp"
+        android:layout_height="match_parent"
+        android:background="@color/lavender_mist"
         android:fitsSystemWindows="true"
         android:outlineProvider="bounds"
-        android:background="@color/lavender_mist"
-        >
+        app:elevation="16dp"
+        app:layout_anchor="@+id/swipeArea"
+        app:layout_anchorGravity="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:menu="@menu/navigation_menu"
+        tools:context=".MainActivity"
+        tools:openDrawer="start">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:minHeight="?attr/actionBarSize">
+            android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/text_view_app_name"
-                style="?textAppearanceHeadlineSmall"
+            <com.google.android.material.navigation.NavigationView
+                android:id="@+id/navigation_view"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="100dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="70dp"
-                android:gravity="center_horizontal"
-                android:text="@string/app_name"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_height="match_parent"
+                android:layout_gravity="start"
+                android:background="@color/lavender_mist"
+                app:insetForeground="@android:color/transparent"
+                app:menu="@menu/navigation_menu" />
 
-            <ImageButton
-                android:id="@+id/login"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/app_name"
-                android:drawableLeft="@drawable/baseline_menu_24"
-                android:gravity="end"
-                tools:ignore="ButtonStyle" />
-        </androidx.appcompat.widget.Toolbar>
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:minHeight="?attr/actionBarSize">
 
-    </com.google.android.material.appbar.AppBarLayout>
+                <TextView
+                    android:id="@+id/text_view_app_name"
+                    style="?textAppearanceHeadlineSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="100dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="70dp"
+                    android:gravity="center_horizontal"
+                    android:text="@string/app_name"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
+                <ImageButton
+                    android:id="@+id/login"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:drawableStart="@drawable/baseline_menu_24"
+                    android:gravity="end"
+                    tools:ignore="ButtonStyle" />
+            </androidx.appcompat.widget.Toolbar>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-     <FrameLayout
+    </androidx.drawerlayout.widget.DrawerLayout>
+
+    <FrameLayout
             android:id="@+id/container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

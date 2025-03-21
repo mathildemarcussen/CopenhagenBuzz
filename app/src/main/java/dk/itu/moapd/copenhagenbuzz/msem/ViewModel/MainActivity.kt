@@ -28,12 +28,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.GestureDetector
-import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
 import androidx.core.view.WindowCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
@@ -48,6 +49,7 @@ import dk.itu.moapd.copenhagenbuzz.msem.View.ModalBottomSheet
 import dk.itu.moapd.copenhagenbuzz.msem.R
 import dk.itu.moapd.copenhagenbuzz.msem.View.TimelineFragment
 import dk.itu.moapd.copenhagenbuzz.msem.View.LoginActivity
+import dk.itu.moapd.copenhagenbuzz.msem.View.UserInfoDialogFragment
 
 
 /**
@@ -117,16 +119,20 @@ class MainActivity : AppCompatActivity() {
         isLoggedIn = intent.getBooleanExtra("isLoggedIn", false)
 
         // Updates the userbutton based on the isLoggedIn value
-        //updateUserIcon(userButton)
+        updateUserIcon(userButton)
 
         /** Click lisnetner for the User button
          * Calls startActivity to launch LoginActivity
          * Calls finish to close MainActivity
          */
+         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
+         val menuButton: View = findViewById(R.id.login)
         userButton.setOnClickListener {
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
-            finish()
+            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                drawerLayout.closeDrawer(GravityCompat.START)
+            } else {
+                drawerLayout.openDrawer(GravityCompat.START)
+            }
         }
         replaceFragment(TimelineFragment())
 
@@ -137,26 +143,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         auth = FirebaseAuth.getInstance()
-        setSupportActionBar(binding.toolbar)
+
     }
 
-    /*override fun onOptionsItemSelected(item: MenuItem) :
-        Boolean = when (item.itemId) {
-            R.id.action_user_info -> {
-                UserInfoDialogFragment().apply {
-                    isCancelable = false
-                }.also {dialogFragment ->
-                    dialogFragment.show(supportFragmentManager, "UserInfoDialogFragment")
-                }
-                true
-            }
-            R.id.action_logout -> {
-                auth.signOut()
-                startLoginActivity()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-    }*/
 
 
 
@@ -254,11 +243,7 @@ class MainActivity : AppCompatActivity() {
      * logout icon our a guest symbol
      */
     private fun updateUserIcon(userButton: ImageButton) {
-        if (isLoggedIn) {
-            userButton.setImageResource(R.drawable.baseline_logout_24) // Logout icon
-        } else {
-            userButton.setImageResource(R.drawable.baseline_account_circle_24) // Login icon
-        }
+        userButton.setImageResource(R.drawable.baseline_menu_24)
     }
 
     override fun onStart() {

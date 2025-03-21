@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="HardcodedText">
+
+    <item
+        android:id="@+id/main_item"
+        android:title="Profile">
+          <menu>
+            <item
+              android:id="@+id/inbox_item"
+              android:icon="@drawable/baseline_account_circle_24"
+              android:title="cool title"
+              android:checkable="true"/>
+            <item
+              android:id="@+id/outbox_item"
+              android:icon="@drawable/baseline_add_24"
+              android:title="AAAAAAAAaaaaaaaaa"
+              android:checkable="true"/>
+            <item
+              android:id="@+id/favourites_item"
+              android:icon="@drawable/baseline_favorite_24"
+              android:title="favorites"
+              android:checkable="true"/>
+          </menu>
+      </item>
+
+
+</menu>
