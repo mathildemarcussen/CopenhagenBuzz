@@ -228,7 +228,6 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
 
         val dateRangePicker = MaterialDatePicker.Builder.dateRangePicker()
             .setTitleText(getText(R.string.event_date))
-
             .setInputMode(MaterialDatePicker.INPUT_MODE_TEXT)
             .setCalendarConstraints(constraintsBuilder.build())
             .build()

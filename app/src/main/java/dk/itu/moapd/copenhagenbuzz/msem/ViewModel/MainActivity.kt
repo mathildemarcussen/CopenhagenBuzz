@@ -28,6 +28,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.GestureDetector
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageButton
@@ -41,6 +44,7 @@ import androidx.navigation.ui.setupWithNavController
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.ActivityMainBinding
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.ContentMainBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import dk.itu.moapd.copenhagenbuzz.msem.View.CalendarFragment
 import dk.itu.moapd.copenhagenbuzz.msem.View.FavoritesFragment
@@ -140,9 +144,29 @@ class MainActivity : AppCompatActivity() {
 
         if (isLoggedIn) {
             makeBottomSheet()
+            val navigationView = findViewById<NavigationView>(R.id.navigation_view)
+            val menu = navigationView.menu
+            val user = FirebaseAuth.getInstance().currentUser
+            var mail = user?.email
+            Log.d(TAG, "users $mail")
+            menu.findItem(R.id.accountname_item).title = user?.displayName ?: "Anonymous"
+            menu.findItem(R.id.accountmail_item).title = user?.email ?: "anonymous@gmail.com"
+        }
+        auth = FirebaseAuth.getInstance()
+
+        val navigationView = findViewById<NavigationView>(R.id.navigation_view)
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.signin_signout_item -> {
+                    Log.d(TAG, "Sign in/out clicked from drawer")
+                    signinSignout()
+                    true
+                }
+                // Her kan du også håndtere andre navigation items, hvis du vil
+                else -> false
+            }
         }
 
-        auth = FirebaseAuth.getInstance()
 
     }
 
@@ -257,6 +281,28 @@ class MainActivity : AppCompatActivity() {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                     Intent.FLAG_ACTIVITY_CLEAR_TASK
         }.let(::startActivity)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.navigation_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle item selection.
+        return when (item.itemId) {
+            R.id.signin_signout_item -> {
+                Log.d(TAG, "Item Selected")
+                signinSignout()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    fun signinSignout() {
+        startLoginActivity()
     }
 
 }

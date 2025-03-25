@@ -61,7 +61,9 @@ class LoginActivity : AppCompatActivity() {
             when (result.resultCode) {
             RESULT_OK -> {
                 showSnackBar("User logged in the app.")
+                isLoggedIn = true
                 startMainActivity()
+
             }
         }
     }
