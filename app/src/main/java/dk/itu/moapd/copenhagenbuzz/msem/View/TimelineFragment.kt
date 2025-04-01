@@ -6,9 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ListView
+import androidx.fragment.app.activityViewModels
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.R
 import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.EventAdapter
+import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.EventViewModel
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.FragmentTimelineBinding
 
 // TODO: Rename parameter arguments, choose names that match
@@ -26,11 +28,11 @@ class TimelineFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
     private var _binding: FragmentTimelineBinding? = null
-
     private val binding
         get() = requireNotNull(_binding) {
             "Cannot access binding because it is null. Is the view visible?"
         }
+    private val eventViewModel: EventViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,7 +46,7 @@ class TimelineFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? = FragmentTimelineBinding.inflate(inflater, container, false).also {
+    ): View = FragmentTimelineBinding.inflate(inflater, container, false).also {
         _binding = it
     }.root
 
@@ -52,34 +54,12 @@ class TimelineFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.apply{
-            val data = listOf(
-                Event(
-                    eventName = "Copoaw",
-                    eventLocation = "Copenhagen",
-                    eventDate = "22 februar",
-                    eventType = "party :))",
-                    eventDescription = "aaaaaaaaaaaaaa"
-                ),
-                Event(
-                    eventName = "Copenhagen Light Festival",
-                    eventLocation = "Copenhagen",
-                    eventDate = "1 marts",
-                    eventType = "Festival",
-                    eventDescription = "Beautiful light instalations all over Copenahgen"
-                ),
-                Event(
-                    eventName = "Tate Mcrae",
-                    eventLocation = "Royal Arena",
-                    eventDate = "30 maj",
-                    eventType = "concert",
-                    eventDescription = "Pop Concert"
+        eventViewModel.events.observe(viewLifecycleOwner) { events ->
+            binding.listView.adapter =
+                EventAdapter(
+                    requireContext(),
+                    events
                 )
-            )
-
-            val adapter = EventAdapter(requireContext(), data )
-            val listView = view.findViewById<ListView>(R.id.list_view)
-            listView.adapter = adapter
         }
 
     }

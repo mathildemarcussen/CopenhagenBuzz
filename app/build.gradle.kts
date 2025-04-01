@@ -39,6 +39,7 @@ android {
     }
 }
 
+
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -57,4 +58,7 @@ dependencies {
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.ui.auth)
     implementation(platform(libs.firebase.bom))
+    implementation (libs.firebase.ui.database)
+    implementation(libs.dotenv.kotlin)
+
 }

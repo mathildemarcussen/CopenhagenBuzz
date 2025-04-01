@@ -24,14 +24,9 @@
 package dk.itu.moapd.copenhagenbuzz.msem.View
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import dk.itu.moapd.copenhagenbuzz.msem.R
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.ActivityLoginBinding
-import dk.itu.moapd.copenhagenbuzz.msem.databinding.ContentLoginBinding
-import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.MainActivity
 import android.content.Intent
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
@@ -47,10 +42,8 @@ class LoginActivity : AppCompatActivity() {
     /**
      * ViewBindings used to make the interaction between the code and our views easier.
      */
-    private lateinit var customBinding: ContentLoginBinding
     private lateinit var binding: ActivityLoginBinding
-
-    public var isLoggedIn: Boolean = false
+    
 
     private val signInLauncher =
         registerForActivityResult(
@@ -58,22 +51,21 @@ class LoginActivity : AppCompatActivity() {
         ) { result -> onSignInResult(result) }
 
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
-            when (result.resultCode) {
+        when (result.resultCode) {
             RESULT_OK -> {
                 showSnackBar("User logged in the app.")
-                isLoggedIn = true
+                //isLoggedIn = true
                 startMainActivity()
-
             }
+
         }
     }
 
 
     private fun startMainActivity() {
         Intent(this, MainActivity::class.java).apply {
-            startActivity(this)
-            finish()
-        }
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }.let(::startActivity)
     }
 
     private fun createSignInIntent() {
@@ -91,7 +83,7 @@ class LoginActivity : AppCompatActivity() {
             .apply{
                 setTosAndPrivacyPolicyUrls(
                     "https://firebase.google.com/terms/",
-                    "https://firebase.google.com/policies/…"
+                    "https://firebase.google.com/policies/analytics"
                 )
             }
             .build()
@@ -114,7 +106,4 @@ class LoginActivity : AppCompatActivity() {
             window.decorView.rootView, message, Snackbar.LENGTH_SHORT
         ).show()
     }
-
-
-
 }

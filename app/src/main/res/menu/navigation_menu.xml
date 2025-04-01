@@ -16,23 +16,37 @@
                 android:title="Anonymous@gmail.com"   />
             <item
                 android:id="@+id/signin_signout_item"
-                android:title="hej"
+                android:title="Sign In"
                 />
             <item
-              android:id="@+id/inbox_item"
-              android:icon="@drawable/baseline_account_circle_24"
-              android:title="cool title"
+                android:id="@+id/gennereal_settings_item"
+                android:title="General Settings"
+                  />
+            <item
+              android:id="@+id/notification_item"
+              android:icon="@drawable/baseline_circle_notifications_24"
+              android:title="Notifications"
               android:checkable="true"/>
             <item
-              android:id="@+id/outbox_item"
-              android:icon="@drawable/baseline_add_24"
-              android:title="AAAAAAAAaaaaaaaaa"
+              android:id="@+id/support_item"
+              android:icon="@drawable/baseline_support_24"
+              android:title="Support"
               android:checkable="true"/>
             <item
-              android:id="@+id/favourites_item"
-              android:icon="@drawable/baseline_favorite_24"
-              android:title="favorites"
+              android:id="@+id/settings_item"
+              android:icon="@drawable/baseline_settings_24"
+              android:title="Settings"
               android:checkable="true"/>
+            <item
+             android:id="@+id/help_item"
+             android:icon="@drawable/baseline_help_24"
+             android:title="Help"
+             android:checkable="true"   />
+            <item
+                  android:id="@+id/terms_conditions_item"
+                  android:icon="@drawable/baseline_gavel_24"
+                  android:title="Terms &amp; Conditions"
+                  android:checkable="true"   />
           </menu>
       </item>
 

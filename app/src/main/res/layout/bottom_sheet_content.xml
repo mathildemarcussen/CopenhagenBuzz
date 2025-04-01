@@ -13,7 +13,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:elevation="16dp"
+        app:elevation="@dimen/fab_margin"
         android:outlineProvider="bounds"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -32,9 +32,9 @@
                 android:id="@+id/text_view_app_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginStart="100dp"
-                android:layout_marginEnd="70dp"
+                android:layout_marginTop="@dimen/fab_margin"
+                android:layout_marginStart="@dimen/swipe_height"
+                android:layout_marginEnd="@dimen/top_appbar_height"
                 android:text= "@string/app_name"
                 android:gravity="center_horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -60,9 +60,9 @@
         android:id="@+id/text_field_event_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginStart="@dimen/fab_margin"
+        android:layout_marginTop="@dimen/margin_top"
         android:hint="@string/event_name"
         app:startIconDrawable="@drawable/baseline_festival_24"
         app:endIconMode="clear_text"
@@ -84,9 +84,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
 
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginStart="@dimen/fab_margin"
+        android:layout_marginTop="@dimen/fab_margin"
         android:hint="@string/event_location"
         app:startIconDrawable="@drawable/baseline_add_location_alt_24"
         app:endIconMode="clear_text"
@@ -107,9 +107,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
 
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginStart="@dimen/fab_margin"
+        android:layout_marginTop="@dimen/fab_margin"
         android:hint="@string/event_date"
         app:startIconDrawable="@drawable/baseline_date_range_24"
         app:endIconMode="clear_text"
@@ -133,9 +133,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
 
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginStart="@dimen/fab_margin"
+        android:layout_marginTop="@dimen/fab_margin"
         android:hint="@string/event_type"
         app:startIconDrawable="@drawable/baseline_celebration_24"
         app:endIconMode="dropdown_menu"
@@ -158,9 +158,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
 
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginStart="@dimen/fab_margin"
+        android:layout_marginTop="@dimen/fab_margin"
         android:hint="@string/event_description"
         app:endIconMode="clear_text"
         app:layout_constraintEnd_toEndOf="parent"
@@ -173,8 +173,8 @@
             android:layout_height="wrap_content"
             android:gravity="top"
             android:inputType="text"
-            android:maxHeight="400dp"
-            android:minHeight="150dp" />
+            android:maxHeight="@dimen/edit_text_max_height"
+            android:minHeight="@dimen/edit_text_min_height" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -184,8 +184,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 
-        android:layout_marginEnd="30dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginEnd="@dimen/margin_end"
+        android:layout_marginTop="@dimen/margin_small_top"
 
         app:srcCompat="@drawable/baseline_add_24"
 

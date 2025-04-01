@@ -14,7 +14,7 @@ import dk.itu.moapd.copenhagenbuzz.msem.databinding.EventRowItemBinding
 
 //data class Event(val title: String, val date: String, val location: String, val type: String, val description: String)
 
-class EventAdapter(context: Context, events: List<Event>) : ArrayAdapter<Event>(context, 0, events){
+class EventAdapter(context: Context, events: List<Event>) : ArrayAdapter<Event>(context, R.layout.event_row_item, events){
 
     private lateinit var binding: EventRowItemBinding
 
