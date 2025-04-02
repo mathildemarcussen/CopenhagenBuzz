@@ -42,6 +42,8 @@ class LoginActivity : AppCompatActivity() {
     /**
      * ViewBindings used to make the interaction between the code and our views easier.
      */
+
+    // should we still use this after implementing firebase authentication??
     private lateinit var binding: ActivityLoginBinding
     
 

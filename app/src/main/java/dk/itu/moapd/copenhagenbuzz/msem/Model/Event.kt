@@ -23,6 +23,8 @@
 */
 package dk.itu.moapd.copenhagenbuzz.msem.Model
 
+import java.util.UUID
+
 /**
 *  A dataclass representing an event i the CopenhagemBuzz App
 *
@@ -40,7 +42,8 @@ data class Event(
     var eventLocation: String,
     var eventDate: String,
     var eventType: String,
-    var eventDescription: String
+    var eventDescription: String,
+    var userID : String
 
 ) {
 
