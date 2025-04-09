@@ -134,6 +134,7 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
     private fun createEvent() {
         val auth = FirebaseAuth.getInstance()
         val database = Firebase.database(DATABASE_URL).reference
+        val objectType = "default"
 
         //Initializes the user inputs as variables
         bottomBinding.fabAddEvent.setOnClickListener { view ->
@@ -158,16 +159,13 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
                 Log.d(TAG, "Event created ${event}")
 
                 auth.currentUser?.let{ user ->
-                                database.child("events")
-                                    .child(user.uid)
-                                    .push()
-                                    .key?.let{ eventId ->
-                                        database.child("events")
-                                            .child(user.uid)
-                                            .child(eventId)
-                                            .setValue(event)
-                                    }
-                            }
+                        val eventRef = database
+                            .child("CopenhagenBuzz")
+                            .child("events")
+                            .push()
+
+                        eventRef.setValue(event)
+                }
 
             }
 

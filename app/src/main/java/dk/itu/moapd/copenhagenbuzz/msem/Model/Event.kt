@@ -38,12 +38,12 @@ import java.util.UUID
 * @property eventDescription The description of the event.
 */
 data class Event(
-    var eventName: String,
-    var eventLocation: String,
-    var eventDate: String,
-    var eventType: String,
-    var eventDescription: String,
-    var userID : String
+    var eventName: String? = "",
+    var eventLocation: String? = "",
+    var eventDate: String? = "",
+    var eventType: String? = "",
+    var eventDescription: String? = "",
+    var userID : String? = ""
 
 ) {
 

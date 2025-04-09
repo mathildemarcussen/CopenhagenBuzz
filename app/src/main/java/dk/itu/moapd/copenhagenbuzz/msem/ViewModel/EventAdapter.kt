@@ -8,44 +8,34 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import com.firebase.ui.database.FirebaseListAdapter
+import com.firebase.ui.database.FirebaseListOptions
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.R
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.EventRowItemBinding
 
-//data class Event(val title: String, val date: String, val location: String, val type: String, val description: String)
 
-class EventAdapter(context: Context, events: List<Event>) : ArrayAdapter<Event>(context, R.layout.event_row_item, events){
+class EventAdapter(context: Context, events: List<Event>, options: FirebaseListOptions<Event>) : FirebaseListAdapter<Event>(options) {
 
     private lateinit var binding: EventRowItemBinding
+    private var _context = context
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val inflater = LayoutInflater.from(context)
-        val view: View
-        val holder: ViewHolder
-        if (convertView == null) {
-            binding = EventRowItemBinding.inflate(inflater, parent, false)
-            view = binding.root
-
-            holder = ViewHolder(view)
-
-            view.tag = holder
-
-        } else {
-            view = convertView
-            holder = view.tag as ViewHolder
-        }
+    override fun populateView(v: View, model: Event, position: Int) {
+        //val inflater = LayoutInflater.from(_context)
+        //val view: View
+        val binding =  EventRowItemBinding.bind(v)
+        //val holder: ViewHolder
 
 
         val event = getItem(position)
 
-        holder.eventTitle.text = event?.eventName
-        holder.eventType.text = event?.eventType
-        holder.eventDate.text = event?.eventDate
-        holder.eventLocation.text = event?.eventLocation
-        holder.eventDescription.text = event?.eventDescription
-
-        return view
+        binding.eventName.text = event.eventName
+        binding.eventType.text = event?.eventType
+        binding.eventDate.text = event?.eventDate
+        binding.eventLocation.text = event?.eventLocation
+        binding.eventDescription.text = event?.eventDescription
     }
+
 
 
     inner class ViewHolder(view: View) {

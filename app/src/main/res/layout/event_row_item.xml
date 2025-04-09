@@ -38,13 +38,16 @@
                 android:text="@string/event_name"
                 android:textAppearance="?attr/textAppearanceTitleLarge" />
             <!-- Media -->
-            <ImageView
-                android:id="@+id/favorite_icon"
-                android:layout_width="@dimen/margin_top"
-                android:layout_height="@dimen/margin_top"
-                android:layout_margin="@dimen/list_item_spacing_half"
-                android:src="@drawable/baseline_favorite_24"
-                android:contentDescription="@string/favorite" />
+                <ImageButton
+                    android:id="@+id/lFavorite_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/event_name"
+                    android:drawableLeft="@drawable/baseline_favorite_border_24"
+                    android:gravity="end"
+                    tools:ignore="ButtonStyle" />
+                
             </LinearLayout>
 
             <TextView

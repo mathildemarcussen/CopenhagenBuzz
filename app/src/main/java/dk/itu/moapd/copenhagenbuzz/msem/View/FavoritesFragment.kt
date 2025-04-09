@@ -61,13 +61,10 @@ class FavoritesFragment : Fragment() {
         eventViewModel.events.observe(viewLifecycleOwner) { events ->
                     binding.favoriteRecyclerView.adapter =
                         FavoriteEventAdapter(
-                            requireContext(),
                             events
                         )
                 }
         }
-
-
 
 
     override fun onDestroyView() {

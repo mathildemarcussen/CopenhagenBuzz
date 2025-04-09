@@ -234,8 +234,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-
-        //auth.currentUser ?: startLoginActivity()
     }
 
     private fun startLoginActivity() {
