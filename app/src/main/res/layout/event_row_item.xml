@@ -44,8 +44,9 @@
                     android:layout_height="wrap_content"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/event_name"
-                    android:drawableLeft="@drawable/baseline_favorite_border_24"
+                    android:src="@drawable/baseline_favorite_border_24"
                     android:gravity="end"
+                    android:layout_marginEnd="@dimen/list_item_spacing_half"
                     tools:ignore="ButtonStyle" />
                 
             </LinearLayout>

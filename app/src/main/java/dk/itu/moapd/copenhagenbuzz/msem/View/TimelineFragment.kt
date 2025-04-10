@@ -28,41 +28,27 @@ import dk.itu.moapd.copenhagenbuzz.msem.databinding.FragmentTimelineBinding
  */
 class TimelineFragment : Fragment() {
     private var _binding: FragmentTimelineBinding? = null
-    private var isLiked = false
-    private val binding
-        get() = requireNotNull(_binding) {
-            "Cannot access binding because it is null. Is the view visible?"
-        }
+    private val binding get() = _binding!!
     private val eventViewModel: EventViewModel by activityViewModels()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        val favoriteButton = binding.root.findViewById<ImageButton>(R.id.lFavorite_icon)
-
-        favoriteButton.setOnClickListener{
-            if (isLiked) {
-                isLiked = false
-
-            } else {
-                val eventTitle = favoriteButton.contentDescription.toString()
-                isLiked = true
-                addToFavorite(eventTitle)
-            }
-        }
-    }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = FragmentTimelineBinding.inflate(inflater, container, false).also {
-        _binding = it
-    }.root
+    ): View {
+        _binding = FragmentTimelineBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+    }
+
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
 
         FirebaseAuth.getInstance().currentUser?.uid?.let { userId ->
             val query = Firebase.database(DATABASE_URL).reference
@@ -82,24 +68,6 @@ class TimelineFragment : Fragment() {
         }
 
     }
-
-    fun addToFavorite(event: String) {
-
-        val auth = FirebaseAuth.getInstance()
-        val database = Firebase.database(DATABASE_URL).reference
-        val objectType = "default"
-
-        auth.currentUser?.let { user ->
-            val eventRef = database
-                .child("CopenhagenBuzz")
-                .child("favorites")
-                .child(auth.currentUser?.uid.toString())
-                .push()
-
-            eventRef.setValue(event)
-        }
-    }
-
 
     override fun onDestroyView() {
         super.onDestroyView()
