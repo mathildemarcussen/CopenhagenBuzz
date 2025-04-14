@@ -10,6 +10,12 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.firebase.ui.database.FirebaseListOptions
+import com.firebase.ui.database.FirebaseRecyclerOptions
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
+import dk.itu.moapd.copenhagenbuzz.msem.DATABASE_URL
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.R
 import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.DataViewModel
@@ -55,16 +61,14 @@ class FavoritesFragment : Fragment() {
 
             return binding.root
         }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        eventViewModel.events.observe(viewLifecycleOwner) { events ->
-                    binding.favoriteRecyclerView.adapter =
-                        FavoriteEventAdapter(
-                            events
-                        )
-                }
-        }
+
+    }
+
+
 
 
     override fun onDestroyView() {

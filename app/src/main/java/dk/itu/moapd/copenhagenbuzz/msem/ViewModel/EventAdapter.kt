@@ -13,6 +13,9 @@ import android.widget.TextView
 import com.firebase.ui.database.FirebaseListAdapter
 import com.firebase.ui.database.FirebaseListOptions
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.copenhagenbuzz.msem.DATABASE_URL
@@ -36,12 +39,12 @@ class EventAdapter(context: Context, events: List<Event>, options: FirebaseListO
             setFavoriteIcon(favoriteButton, isLiked)
             if (isLiked) {
                 isLiked = false
-                removeFromFavorite("eventTitle")
+                removeFromFavorite(v.findViewById<TextView>(R.id.event_name).toString())
                 Log.d("Favorite", "Removed from favorites")
 
             } else {
                 isLiked = true
-                addToFavorite("eventTitle")
+                addToFavorite(v.findViewById<TextView>(R.id.event_name).toString())
                 Log.d("Favorite", "Added to favorites")
 
             }
@@ -70,6 +73,9 @@ class EventAdapter(context: Context, events: List<Event>, options: FirebaseListO
                 .push()
 
             eventRef.setValue(event)
+
+
+
         }
     }
     private fun removeFromFavorite(event: String) {
@@ -77,13 +83,22 @@ class EventAdapter(context: Context, events: List<Event>, options: FirebaseListO
         val database = Firebase.database(DATABASE_URL).reference
 
         auth.currentUser?.let { user ->
-            val eventRef = database
-                .child("CopenhagenBuzz")
-                .child("favorites")
-                .child(auth.currentUser?.uid.toString())
-                .push()
-            eventRef.removeValue { error, ref -> event }
+                val eventRef = database
+                    .child("CopenhagenBuzz")
+                    .child("favorites")
+                    .child(auth.currentUser?.uid.toString())
 
+
+
+            val query = eventRef.orderByValue().equalTo(event)
+            query.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    for (childSnapshot in snapshot.children) {
+                        childSnapshot.ref.removeValue()
+                    }
+                }
+                override fun onCancelled(error: DatabaseError) {}
+            })
 
         }
     }
