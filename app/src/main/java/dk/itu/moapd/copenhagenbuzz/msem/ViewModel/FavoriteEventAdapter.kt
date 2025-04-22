@@ -13,10 +13,6 @@ import dk.itu.moapd.copenhagenbuzz.msem.databinding.FavoriteRowItemBinding
 class FavoriteEventAdapter (private var data: List<Event>) :
     RecyclerView.Adapter<FavoriteEventAdapter.ViewHolder>() {
 
-    companion object {
-        private val TAG = FavoriteEventAdapter::class.qualifiedName
-    }
-
     class ViewHolder(private val binding: FavoriteRowItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
@@ -41,7 +37,6 @@ class FavoriteEventAdapter (private var data: List<Event>) :
 
     override fun getItemCount(): Int = data.size
 
-    // Opdater listen, hvis data ændres
     fun updateData(newData: List<Event>) {
         this.data = newData
         notifyDataSetChanged()
