@@ -17,17 +17,19 @@ import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.textfield.TextInputEditText
+import com.google.firebase.auth.FirebaseAuth
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.R
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.BottomSheetContentBinding
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
+import dk.itu.moapd.copenhagenbuzz.msem.DATABASE_URL
+import dk.itu.moapd.copenhagenbuzz.msem.MyApplication
+
 
 class ModalBottomSheet : BottomSheetDialogFragment() {
     private lateinit var bottomBinding: BottomSheetContentBinding
-    private val event: Event = Event("", "", "", "", "")
-    private lateinit var eventName: EditText
-    private lateinit var eventLocation: EditText
-    private lateinit var eventDate: EditText
-    private lateinit var eventDescription: EditText
+    private val event: Event = Event("", "", "", "", "", "")
     private lateinit var eventType: String
     private lateinit var dateRangeField: TextInputEditText
 
@@ -46,7 +48,6 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?){
     super.onViewCreated(view, savedInstanceState)
-        //bottomBinding = BottomSheetContentBinding.inflate(layoutInflater)
         bottomBinding.editTextEventName.setText(event.eventName)
         bottomBinding.editTextEventLocation.setText(event.eventLocation)
 
@@ -65,10 +66,6 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
         dateRangeField = bottomBinding.editTextEventDate
 
 
-        //Sets up the type picker dropdown menu
-        //createTypePicker()
-        //Listener for user interaction in the `Add Event ` button.
-
         // Sets up the DatePicker
         DateRangePicker()
 
@@ -84,21 +81,7 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
 
 
     }
-    /*override fun onSaveInstanceState(outState: Bundle) {
 
-            bottomBinding.apply {
-
-                    outState.putString(eventName.toString(), textFieldEventName.editText.toString())
-
-                outState.putString(eventLocation.toString(),textFieldEventLocation.editText.toString() )
-                outState.putString(eventDate.toString(), textFieldEventDate.editText.toString())
-                outState.putString(eventType, textFieldEventType.editText.toString())
-                outState.putString(eventDescription.toString(), textFieldEventDescription.editText.toString())
-            }
-
-            super.onSaveInstanceState(outState)
-            Log.d(TAG, "onSaveInstanceState() method called.")
-        } */
 
     override fun onStart() {
         super.onStart()
@@ -149,6 +132,9 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
      * and updates the event object.
      */
     private fun createEvent() {
+        val auth = FirebaseAuth.getInstance()
+        val database = Firebase.database(DATABASE_URL).reference
+        val objectType = "default"
 
         //Initializes the user inputs as variables
         bottomBinding.fabAddEvent.setOnClickListener { view ->
@@ -156,6 +142,8 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
             val eventLocation = bottomBinding.editTextEventLocation.text.toString()
             val eventDate = bottomBinding.editTextEventDate.text.toString()
             val eventDescription = bottomBinding.editTextEventDiscription.text.toString()
+            val userID = auth.currentUser?.uid.toString() // we know it is bad code okay
+
 
             if (eventName.isNotEmpty() && eventLocation.isNotEmpty()) {
                 // Update the object attributes.
@@ -164,10 +152,20 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
                 event.eventDate = eventDate
                 event.eventType = eventType
                 event.eventDescription = eventDescription
+                event.userID = userID
                 // Calls the Snackbar so it gets shown when the button is clicked
                 Snackbar(view)
                 //Log the created event
                 Log.d(TAG, "Event created ${event}")
+
+                auth.currentUser?.let{ user ->
+                        val eventRef = database
+                            .child("CopenhagenBuzz")
+                            .child("events")
+                            .push()
+
+                        eventRef.setValue(event)
+                }
 
             }
 
@@ -228,7 +226,6 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
 
         val dateRangePicker = MaterialDatePicker.Builder.dateRangePicker()
             .setTitleText(getText(R.string.event_date))
-
             .setInputMode(MaterialDatePicker.INPUT_MODE_TEXT)
             .setCalendarConstraints(constraintsBuilder.build())
             .build()
@@ -256,8 +253,6 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
             dateRangeField.setText(string)
 
         }
-
-
     }
 
 

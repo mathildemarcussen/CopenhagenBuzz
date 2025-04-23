@@ -12,7 +12,52 @@
           "package_name": "dk.itu.moapd.copenhagenbuzz.msem"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "168173742543-786b04q7pcbddd42v9rjn1qju0a76i2t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dk.itu.moapd.copenhagenbuzz.msem",
+            "certificate_hash": "14fb1dc02c6184dcdbca5c639c79f362aa4b6377"
+          }
+        },
+        {
+          "client_id": "168173742543-8vkg094ktt6ld7kqaqq5gprb50mjedal.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dk.itu.moapd.copenhagenbuzz.msem",
+            "certificate_hash": "774c7e0236c686c42fc78aa69deda44d07ea8d49"
+          }
+        },
+        {
+          "client_id": "168173742543-gg67lmnp923j4a596baj4no79hrmcko9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dk.itu.moapd.copenhagenbuzz.msem",
+            "certificate_hash": "590560c9b74bda30178637aa82365a74ca8609b1"
+          }
+        },
+        {
+          "client_id": "168173742543-lksuj8l6m3ru6i8hont8qturadi0r4k9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dk.itu.moapd.copenhagenbuzz.msem",
+            "certificate_hash": "1bd1d89e4df4f52cb93e991e1a16ec791fa72794"
+          }
+        },
+        {
+          "client_id": "168173742543-t04doh0k1h6ptin3a3b3k266voujusgq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dk.itu.moapd.copenhagenbuzz.msem",
+            "certificate_hash": "41b680829451304a4c23cb70ebabe670d8aca3b0"
+          }
+        },
+        {
+          "client_id": "168173742543-vdf777bkuakqa5pj7r1u3cjuv4ndqflb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBvAeFTNcBYeeczhXgiDozxT_7hkrrAaVY"
@@ -20,7 +65,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "168173742543-vdf777bkuakqa5pj7r1u3cjuv4ndqflb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

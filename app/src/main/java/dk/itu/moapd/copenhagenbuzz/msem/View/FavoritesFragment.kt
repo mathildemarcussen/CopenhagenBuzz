@@ -6,20 +6,25 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ListView
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.firebase.ui.database.FirebaseListOptions
+import com.firebase.ui.database.FirebaseRecyclerOptions
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
+import dk.itu.moapd.copenhagenbuzz.msem.DATABASE_URL
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.R
 import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.DataViewModel
 import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.EventAdapter
+import com.google.firebase.database.DataSnapshot
+import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.EventViewModel
 import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.FavoriteEventAdapter
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.FragmentFavoritesBinding
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
 /**
  * A simple [Fragment] subclass.
@@ -27,41 +32,15 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class FavoritesFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
     private var _binding: FragmentFavoritesBinding? = null
     private lateinit var adapter: FavoriteEventAdapter
-    private val viewModel: DataViewModel by viewModels()
+    private val eventViewModel: EventViewModel by activityViewModels()
 
     private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
     }
-
-
-    /*fun onCreatedView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = FragmentFavoritesBinding.inflate(inflater, container, false)
-
-        // Initialiser adapter med en tom liste
-        adapter = FavoriteEventAdapter(emptyList())
-
-        // Sæt adapter og layoutManager på RecyclerView
-        binding.favoriteListView.layoutManager = LinearLayoutManager(requireContext())
-        binding.favoriteListView.adapter = adapter
-
-        // Observer ViewModel's favorites-liste
-        viewModel.favorites.observe(viewLifecycleOwner) { favoriteEvents ->
-            adapter.updateData(favoriteEvents)
-        }
-
-        return binding.root
-    } */
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -77,45 +56,89 @@ class FavoritesFragment : Fragment() {
         binding.favoriteRecyclerView.adapter = adapter
 
         // Observer ViewModel's favorites-liste
-        viewModel._favorites.observe(viewLifecycleOwner) { favoriteEvents ->
+        eventViewModel._favorites.observe(viewLifecycleOwner) { favoriteEvents ->
             adapter.updateData(favoriteEvents ?: emptyList())
         }
 
         return binding.root
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        binding.apply{
-            val data = listOf(
-                Event(
-                    eventName = "Copoaw",
-                    eventLocation = "Copenhagen",
-                    eventDate = "22 februar",
-                    eventType = "party :))",
-                    eventDescription = "aaaaaaaaaaaaaa"
-                ),
-                Event(
-                    eventName = "Copenhagen Light Festival",
-                    eventLocation = "Copenhagen",
-                    eventDate = "1 marts",
-                    eventType = "Festival",
-                    eventDescription = "Beautiful light instalations all over Copenahgen"
-                ),
-                Event(
-                    eventName = "Tate Mcrae",
-                    eventLocation = "Royal Arena",
-                    eventDate = "30 maj",
-                    eventType = "concert",
-                    eventDescription = "Pop Concert"
-                )
-            )
-
-            val adapter = FavoriteEventAdapter(data)
-            binding.favoriteRecyclerView.adapter = adapter
-        }
+        fetchFavorites()
     }
 
+    /**
+     * Fetches the user's favorite event IDs from the Firebase Realtime Database,
+     * then retrieves the full event data for each ID from the main events table.
+     *
+     * The full `Event` objects are collected and used to update the adapter.
+     * This allows the favorites list to display full event information, even
+     * though the favorites table only stores references (event IDs).
+     */
+    private fun fetchFavorites() {
+        // Get the currently authenticated user
+        val auth = FirebaseAuth.getInstance()
+        val userId = auth.currentUser?.uid ?: return
+
+        // Reference to the Firebase Realtime Database
+        val database = Firebase.database(DATABASE_URL).reference
+
+        // Reference to the user's list of favorite event IDs
+        val favoritesRef = database
+            .child("CopenhagenBuzz")
+            .child("favorites")
+            .child(userId)
+
+        // Reference to the main events table containing all full Event objects
+        val eventsRef = database
+            .child("CopenhagenBuzz")
+            .child("events")
+
+        // Get the list of favorite event IDs
+        favoritesRef.get().addOnSuccessListener { snapshot ->
+            // Extract event IDs from the snapshot (keys of the children)
+            val favoriteIds = snapshot.children.mapNotNull { it.key }
+
+            // Temporary list to hold the actual Event objects
+            val favoriteEvents = mutableListOf<Event>()
+
+            // Counter to track when all asynchronous calls have completed
+            var remaining = favoriteIds.size
+
+            // If no favorites, update adapter immediately with an empty list
+            if (favoriteIds.isEmpty()) {
+                adapter.updateData(emptyList())
+                return@addOnSuccessListener
+            }
+
+            // For each favorite event ID, retrieve the full Event object
+            for (eventId in favoriteIds) {
+                eventsRef.child(eventId).get().addOnSuccessListener { eventSnapshot ->
+                    // Convert the snapshot into an Event object
+                    val event = eventSnapshot.getValue(Event::class.java)
+
+                    // Add it to the list if not null
+                    if (event != null) {
+                        favoriteEvents.add(event)
+                    }
+
+                    // When all events are loaded, update the adapter
+                    remaining--
+                    if (remaining == 0) {
+                        adapter.updateData(favoriteEvents)
+                    }
+
+                }.addOnFailureListener {
+                    // If a single event fetch fails, still count it down
+                    remaining--
+                    if (remaining == 0) {
+                        adapter.updateData(favoriteEvents)
+                    }
+                }
+            }
+        }
+    }
 
 
     override fun onDestroyView() {
@@ -123,23 +146,5 @@ class FavoritesFragment : Fragment() {
         _binding = null
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment FavoritesFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            FavoritesFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
-    }
+
 }

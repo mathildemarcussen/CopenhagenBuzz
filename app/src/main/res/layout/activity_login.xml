@@ -7,8 +7,4 @@
     android:layout_height="match_parent"
     tools:context=".View.LoginActivity">
 
-    <include
-        android:id="@+id/content_login"
-        layout="@layout/content_login" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
