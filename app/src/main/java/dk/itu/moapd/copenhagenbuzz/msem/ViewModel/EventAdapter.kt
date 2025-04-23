@@ -22,33 +22,68 @@ import dk.itu.moapd.copenhagenbuzz.msem.DATABASE_URL
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.R
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.EventRowItemBinding
+import kotlin.properties.Delegates
 
 
-class EventAdapter(context: Context, events: List<Event>, options: FirebaseListOptions<Event>) : FirebaseListAdapter<Event>(options) {
+class EventAdapter(context: Context, events: List<Event>, options: FirebaseListOptions<Event>) :
+    FirebaseListAdapter<Event>(options) {
 
     private lateinit var binding: EventRowItemBinding
     private var _context = context
-    private var isLiked = false
 
 
     override fun populateView(v: View, model: Event, position: Int) {
-        val binding =  EventRowItemBinding.bind(v)
+        val binding = EventRowItemBinding.bind(v)
         val favoriteButton = v.findViewById<ImageButton>(R.id.lFavorite_icon)
+        val deleteButton = v.findViewById<ImageButton>(R.id.delete_icon)
 
-        favoriteButton.setOnClickListener{
-            setFavoriteIcon(favoriteButton, isLiked)
-            if (isLiked) {
-                isLiked = false
-                removeFromFavorite(v.findViewById<TextView>(R.id.event_name).toString())
-                Log.d("Favorite", "Removed from favorites")
+        val auth = FirebaseAuth.getInstance()
+        val uid = auth.currentUser?.uid ?: return
+        val eventID = getRef(position).key ?: return
+        val database = Firebase.database(DATABASE_URL).reference
 
-            } else {
-                isLiked = true
-                addToFavorite(v.findViewById<TextView>(R.id.event_name).toString())
-                Log.d("Favorite", "Added to favorites")
 
-            }
+        val favoritesRef = Firebase.database(DATABASE_URL)
+            .reference
+            .child("CopenhagenBuzz")
+            .child("favorites")
+            .child(uid)
+
+        if (uid == model.userID) {
+            deleteButton.visibility = View.VISIBLE
+        } else {
+            deleteButton.visibility = View.GONE
         }
+
+        deleteButton.setOnClickListener {
+            deleteEvent(eventID)
+        }
+
+        // Listen for current favorite status for this event
+        favoritesRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(parentSnap: DataSnapshot) {
+
+                var isLiked =
+                    parentSnap.hasChild(eventID)
+                setFavoriteIcon(favoriteButton, isLiked)
+
+                favoriteButton.setOnClickListener {
+                    if (isLiked) {
+                        removeFromFavorite(eventID)
+                        setFavoriteIcon(favoriteButton, false)
+                        isLiked = false
+                        Log.d("Favorite", "Removed from favorites")
+                    } else {
+                        addToFavorite(eventID)
+                        setFavoriteIcon(favoriteButton, true)
+                        isLiked = true
+                        Log.d("Favorite", "Added to favorites")
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {}
+        })
 
         val event = getItem(position)
 
@@ -63,48 +98,54 @@ class EventAdapter(context: Context, events: List<Event>, options: FirebaseListO
 
         val auth = FirebaseAuth.getInstance()
         val database = Firebase.database(DATABASE_URL).reference
-        val objectType = "default"
 
         auth.currentUser?.let { user ->
             val eventRef = database
                 .child("CopenhagenBuzz")
                 .child("favorites")
-                .child(auth.currentUser?.uid.toString())
-                .push()
+                .child(user.uid)
+                .child(event)
 
             eventRef.setValue(event)
 
 
-
         }
     }
+
     private fun removeFromFavorite(event: String) {
         val auth = FirebaseAuth.getInstance()
         val database = Firebase.database(DATABASE_URL).reference
 
         auth.currentUser?.let { user ->
-                val eventRef = database
-                    .child("CopenhagenBuzz")
-                    .child("favorites")
-                    .child(auth.currentUser?.uid.toString())
+            val eventRef = database
+                .child("CopenhagenBuzz")
+                .child("favorites")
+                .child(user.uid)
+                .child(event)
 
-
-
-            val query = eventRef.orderByValue().equalTo(event)
-            query.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    for (childSnapshot in snapshot.children) {
-                        childSnapshot.ref.removeValue()
-                    }
-                }
-                override fun onCancelled(error: DatabaseError) {}
-            })
-
+            eventRef.removeValue()
         }
     }
 
+    private fun deleteEvent(eventID: String) {
+        val auth = FirebaseAuth.getInstance()
+        val database = Firebase.database(DATABASE_URL).reference
+        val uid = auth.currentUser?.uid ?: return
+
+
+        auth.currentUser?.let { user ->
+            val eventRef = database
+                .child("CopenhagenBuzz")
+                .child("events")
+                .child(eventID)
+
+            eventRef.removeValue()
+        }
+
+    }
+
     private fun setFavoriteIcon(favoriteButton: ImageButton, isLiked: Boolean) {
-        if (!isLiked) {
+        if (isLiked) {
             // Change icon to "liked" state (e.g., filled heart)
             favoriteButton.setImageResource(R.drawable.baseline_favorite_24)
         } else {
@@ -113,5 +154,16 @@ class EventAdapter(context: Context, events: List<Event>, options: FirebaseListO
         }
     }
 
+    private fun deleteIcon(deleteButton: ImageButton, event: Event) {
+        val auth = FirebaseAuth.getInstance()
+        val uid = auth.currentUser?.uid ?: return
 
+
+        if (uid == event.userID) {
+            deleteButton.setImageResource(R.drawable.baseline_delete_outline_24)
+
+        }
+
+
+    }
 }

@@ -1,9 +1,9 @@
 ## Exercise 8
-[] Display Favorite Events
+[X] Display Favorite Events
 [] Edit created events
-[] Ability to Delete Events
+[X] Ability to Delete Events
 [] Data Consistency
-[] opdater favoritter så de er referencer til events, i stedet for kopier
+[X] opdater favoritter så de er referencer til events, i stedet for kopier
 [] Error handling
 
 
@@ -26,3 +26,10 @@
 [] 
 
 ## Additional Functionality 2 - ?? (Maybe Videos)
+
+## Test
+[] Make tests
+
+## When everything is done
+[] Check that there isn't un used code
+[] Make sure that there are kDOC in activity main
