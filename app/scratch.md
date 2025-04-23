@@ -8,8 +8,8 @@
 
 
 ## Exercise 9
-[] Set up Google Maps Api
-[] Implementering af Location permissions
+[X] Set up Google Maps Api
+[X] Implementering af Location permissions
 [] Developing a Geolocation based service
 [] Persisting GPS Data in the Databse
 [] Integrating Google Maps

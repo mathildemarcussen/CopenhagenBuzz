@@ -102,8 +102,6 @@ class MainActivity : AppCompatActivity() {
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController
 
-
-
         // Find and sssigns a reference to the imagebutton
         val userButton = binding.root.findViewById<ImageButton>(R.id.login)
 
