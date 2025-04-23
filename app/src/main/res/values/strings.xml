@@ -1,21 +1,26 @@
 <resources>
-   <string name="login">Login</string>
+    <string name="login">Login</string>
     <string name="guest">Guest</string>
     <string name="edit">Edit</string>
     <string name="info">Info</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
     <string name="picture_description">Picture Description</string>
-    <string name="favorite">Favorite</string> <string name="app_name">CopenhagenBuzz</string>
+    <string name="favorite">Favorite</string>
+    <string name="app_name">CopenhagenBuzz</string>
     <string name="event_name">Event Name</string>
     <string name="event_location">Event Location</string>
     <string name="event_date">Event Date</string>
     <string name="date_range">%1$s - %2$s</string>
     <string name="event_type">Event Type</string>
-        <string name="event_description">Event Description</string>
+    <string name="event_description">Event Description</string>
+    <string name="edit_event">Edit Event</string>
 
     <string-array name="event_types">
         <item>Festival</item>
         <item>Concert</item>
         <item>Exhibition</item>
+        <item>Party</item>
         <item>Other</item>
     </string-array>
 

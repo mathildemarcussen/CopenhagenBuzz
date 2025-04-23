@@ -1,17 +1,14 @@
 package dk.itu.moapd.copenhagenbuzz.msem.ViewModel
 
 import android.content.Context
+import android.media.Image
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.Button
 import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.TextView
+import androidx.fragment.app.FragmentManager
 import com.firebase.ui.database.FirebaseListAdapter
 import com.firebase.ui.database.FirebaseListOptions
+import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -21,26 +18,60 @@ import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.copenhagenbuzz.msem.DATABASE_URL
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.R
+import dk.itu.moapd.copenhagenbuzz.msem.View.EditFragment
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.EventRowItemBinding
-import kotlin.properties.Delegates
 
 
-class EventAdapter(context: Context, events: List<Event>, options: FirebaseListOptions<Event>) :
+class EventAdapter(context: Context, fragmentManager: FragmentManager, events: List<Event>, options: FirebaseListOptions<Event>) :
     FirebaseListAdapter<Event>(options) {
-
-    private lateinit var binding: EventRowItemBinding
-    private var _context = context
-
+        private val fragmentManager = fragmentManager
 
     override fun populateView(v: View, model: Event, position: Int) {
         val binding = EventRowItemBinding.bind(v)
-        val favoriteButton = v.findViewById<ImageButton>(R.id.lFavorite_icon)
         val deleteButton = v.findViewById<ImageButton>(R.id.delete_icon)
+        val editButton = v.findViewById<MaterialButton>(R.id.edit_button)
+
 
         val auth = FirebaseAuth.getInstance()
-        val uid = auth.currentUser?.uid ?: return
+        val uid = auth.currentUser?.uid
         val eventID = getRef(position).key ?: return
-        val database = Firebase.database(DATABASE_URL).reference
+
+        if (uid == model.userID && uid != null) {
+            deleteButton.visibility = View.VISIBLE
+            editButton.visibility = View.VISIBLE
+        } else {
+            deleteButton.visibility = View.GONE
+            editButton.visibility = View.GONE
+        }
+
+        deleteButton.setOnClickListener {
+            deleteEvent(eventID)
+        }
+
+        editButton.setOnClickListener {
+
+            EditFragment(model, eventID)
+                .show(fragmentManager, "custom_dialog_tag")
+        }
+
+
+        if (uid != null) {
+            favoriteButtonFunctionality(v, eventID, uid)
+        } else {
+            v.findViewById<ImageButton>(R.id.lFavorite_icon).visibility = View.GONE
+        }
+
+        val event = getItem(position)
+
+        binding.eventName.text = event.eventName
+        binding.eventType.text = event?.eventType
+        binding.eventDate.text = event?.eventDate
+        binding.eventLocation.text = event?.eventLocation
+        binding.eventDescription.text = event?.eventDescription
+    }
+
+    private fun favoriteButtonFunctionality(v: View, eventID: String, uid: String) {
+        val favoriteButton = v.findViewById<ImageButton>(R.id.lFavorite_icon)
 
 
         val favoritesRef = Firebase.database(DATABASE_URL)
@@ -49,15 +80,6 @@ class EventAdapter(context: Context, events: List<Event>, options: FirebaseListO
             .child("favorites")
             .child(uid)
 
-        if (uid == model.userID) {
-            deleteButton.visibility = View.VISIBLE
-        } else {
-            deleteButton.visibility = View.GONE
-        }
-
-        deleteButton.setOnClickListener {
-            deleteEvent(eventID)
-        }
 
         // Listen for current favorite status for this event
         favoritesRef.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -84,14 +106,6 @@ class EventAdapter(context: Context, events: List<Event>, options: FirebaseListO
 
             override fun onCancelled(error: DatabaseError) {}
         })
-
-        val event = getItem(position)
-
-        binding.eventName.text = event.eventName
-        binding.eventType.text = event?.eventType
-        binding.eventDate.text = event?.eventDate
-        binding.eventLocation.text = event?.eventLocation
-        binding.eventDescription.text = event?.eventDescription
     }
 
     private fun addToFavorite(event: String) {
@@ -130,8 +144,6 @@ class EventAdapter(context: Context, events: List<Event>, options: FirebaseListO
     private fun deleteEvent(eventID: String) {
         val auth = FirebaseAuth.getInstance()
         val database = Firebase.database(DATABASE_URL).reference
-        val uid = auth.currentUser?.uid ?: return
-
 
         auth.currentUser?.let { user ->
             val eventRef = database
@@ -152,18 +164,5 @@ class EventAdapter(context: Context, events: List<Event>, options: FirebaseListO
             // Change icon to "not liked" state (e.g., border heart)
             favoriteButton.setImageResource(R.drawable.baseline_favorite_border_24)
         }
-    }
-
-    private fun deleteIcon(deleteButton: ImageButton, event: Event) {
-        val auth = FirebaseAuth.getInstance()
-        val uid = auth.currentUser?.uid ?: return
-
-
-        if (uid == event.userID) {
-            deleteButton.setImageResource(R.drawable.baseline_delete_outline_24)
-
-        }
-
-
     }
 }

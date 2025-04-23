@@ -19,13 +19,6 @@ import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.EventAdapter
 import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.EventViewModel
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.FragmentTimelineBinding
 
-
-
-/**
- * A simple [Fragment] subclass.
- * Use the [TimelineFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class TimelineFragment : Fragment() {
     private var _binding: FragmentTimelineBinding? = null
     private val binding get() = _binding!!
@@ -42,30 +35,28 @@ class TimelineFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-    }
 
+    }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-        FirebaseAuth.getInstance().currentUser?.uid?.let { userId ->
-            val query = Firebase.database(DATABASE_URL).reference
-                .child("CopenhagenBuzz")
-                .child("events")
-                .orderByChild("eventDate")
+        val query = Firebase.database(DATABASE_URL).reference
+            .child("CopenhagenBuzz")
+            .child("events")
+            .orderByChild("eventDate")
 
 
-            val options = FirebaseListOptions.Builder<Event>()
-                .setQuery(query, Event::class.java)
-                .setLayout(R.layout.event_row_item)
-                .setLifecycleOwner(this)
-                .build()
+        val options = FirebaseListOptions.Builder<Event>()
+            .setQuery(query, Event::class.java)
+            .setLayout(R.layout.event_row_item)
+            .setLifecycleOwner(this)
+            .build()
 
-            binding.listView.adapter = EventAdapter(requireContext(), emptyList(), options)
+        binding.listView.adapter =
+            EventAdapter(requireContext(), parentFragmentManager, emptyList(), options)
 
-        }
 
     }
 

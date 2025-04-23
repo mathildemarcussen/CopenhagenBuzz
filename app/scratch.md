@@ -1,10 +1,10 @@
 ## Exercise 8
 [X] Display Favorite Events
-[] Edit created events
+[X] Edit created events
 [X] Ability to Delete Events
-[] Data Consistency
+[X] Data Consistency
 [X] opdater favoritter så de er referencer til events, i stedet for kopier
-[] Error handling
+[X] Error handling
 
 
 ## Exercise 9
