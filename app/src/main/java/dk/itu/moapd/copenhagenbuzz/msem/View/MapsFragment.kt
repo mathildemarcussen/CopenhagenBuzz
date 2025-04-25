@@ -20,6 +20,7 @@ import android.os.Build
 import android.os.IBinder
 import androidx.collection.emptyLongSet
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.CameraUpdateFactory
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.FragmentMapsBinding
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -97,7 +98,6 @@ class MapsFragment : Fragment() {
         }
     }
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -122,42 +122,47 @@ class MapsFragment : Fragment() {
     override fun onStart() {
         super.onStart()
 
+        val serviceIntent = Intent(requireContext(), LocationService::class.java)
+        requireContext().startService(serviceIntent)
 
-        Intent(requireContext(), LocationService::class.java).let { serviceIntent ->
-            requireActivity().bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
-        }
+        requireActivity().bindService(
+            serviceIntent,
+            serviceConnection,
+            Context.BIND_AUTO_CREATE
+        )
+
     }
 
     override fun onResume() {
-            super.onResume()
+        super.onResume()
 
-            // Register the broadcast receiver.
-            LocalBroadcastManager.getInstance(requireContext()).registerReceiver(
-                locationBroadcastReceiver,
-                IntentFilter(LocationService.ACTION_FOREGROUND_ONLY_LOCATION_BROADCAST)
-            )
-        }
+        // Register the broadcast receiver.
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(
+            locationBroadcastReceiver,
+            IntentFilter(LocationService.ACTION_FOREGROUND_ONLY_LOCATION_BROADCAST)
+        )
+    }
 
 
     override fun onPause() {
-            // Unregister the broadcast receiver.
-            LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(
-                locationBroadcastReceiver
-            )
-            super.onPause()
-        }
+        // Unregister the broadcast receiver.
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(
+            locationBroadcastReceiver
+        )
+        super.onPause()
+    }
 
 
     override fun onStop() {
-            // Unbind from the service.
-            if (locationServiceBound) {
-                requireActivity().unbindService(serviceConnection)
-                locationServiceBound = false
-            }
-
-            // Unregister the shared preference change listener.
-            super.onStop()
+        // Unbind from the service.
+        if (locationServiceBound) {
+            requireActivity().unbindService(serviceConnection)
+            locationServiceBound = false
         }
+
+        // Unregister the shared preference change listener.
+        super.onStop()
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
