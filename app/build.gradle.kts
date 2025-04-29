@@ -63,5 +63,8 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation (libs.firebase.ui.database)
     implementation(libs.dotenv.kotlin)
+    implementation(libs.firebase.bom.v33130)
+    implementation(libs.firebase.ui.storage)
+    implementation(libs.firebase.storage.ktx)
 
 }
