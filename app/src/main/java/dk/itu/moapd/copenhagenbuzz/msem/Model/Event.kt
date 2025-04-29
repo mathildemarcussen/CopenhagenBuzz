@@ -39,7 +39,7 @@ import java.util.UUID
 */
 data class Event(
     var eventName: String? = "",
-    var eventLocation: String? = "",
+    var eventLocation: EventLocation = EventLocation(),
     var eventDate: String? = "",
     var eventType: String? = "",
     var eventDescription: String? = "",

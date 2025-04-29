@@ -25,6 +25,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.copenhagenbuzz.msem.DATABASE_URL
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
+import dk.itu.moapd.copenhagenbuzz.msem.Model.EventLocation
 import dk.itu.moapd.copenhagenbuzz.msem.R
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.FragmentEditBinding
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.FragmentUserInfoDialogBinding
@@ -52,7 +53,7 @@ class EditFragment(_event: Event, eventID: String) : DialogFragment() {
         val cancelButton = view.findViewById<MaterialButton>(R.id.cancel_button)
 
         binding.editTextEventName.setText(event.eventName)
-        binding.editTextEventLocation.setText(event.eventLocation)
+        binding.editTextEventLocation.setText(event.eventLocation.address)
         binding.editTextEventDate.setText(event.eventDate)
         binding.editTextEventDiscription.setText(event.eventDescription)
         binding.eventTypeMenu.setText(event.eventType)
@@ -74,7 +75,7 @@ class EditFragment(_event: Event, eventID: String) : DialogFragment() {
         saveButton.setOnClickListener {
             Log.d("EditFragment", "Save button clicked")
             val eventName = binding.editTextEventName.text.toString()
-            val eventLocation = binding.editTextEventLocation.text.toString()
+            val eventLocation = EventLocation()
             val eventDate = binding.editTextEventDate.text.toString()
             val eventDescription = binding.editTextEventDiscription.text.toString()
             val eventType = binding.eventTypeMenu.text.toString()

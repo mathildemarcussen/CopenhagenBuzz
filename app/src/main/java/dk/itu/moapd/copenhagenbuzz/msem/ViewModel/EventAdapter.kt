@@ -27,6 +27,7 @@ class EventAdapter(context: Context, fragmentManager: FragmentManager, events: L
         private val fragmentManager = fragmentManager
 
     override fun populateView(v: View, model: Event, position: Int) {
+
         val binding = EventRowItemBinding.bind(v)
         val deleteButton = v.findViewById<ImageButton>(R.id.delete_icon)
         val editButton = v.findViewById<MaterialButton>(R.id.edit_button)
@@ -66,7 +67,7 @@ class EventAdapter(context: Context, fragmentManager: FragmentManager, events: L
         binding.eventName.text = event.eventName
         binding.eventType.text = event?.eventType
         binding.eventDate.text = event?.eventDate
-        binding.eventLocation.text = event?.eventLocation
+        binding.eventLocation.text = event?.eventLocation?.address
         binding.eventDescription.text = event?.eventDescription
     }
 
