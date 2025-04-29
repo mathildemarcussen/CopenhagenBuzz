@@ -10,9 +10,9 @@
 ## Exercise 9
 [X] Set up Google Maps Api
 [X] Implementering af Location permissions
-[] Developing a Geolocation based service
-[] Persisting GPS Data in the Databse
-[] Integrating Google Maps
+[X] Developing a Geolocation based service
+[X] Persisting GPS Data in the Databse
+[X] Integrating Google Maps
 
 
 ## Exercise 10
@@ -22,7 +22,7 @@
 [] Downloading Photos from a Firebase Storage Bucket
 
 
-## Additional Functionality 1 - Calendar
+## Additional Functionality 1 - Geo Fencing
 [] 
 
 ## Additional Functionality 2 - ?? (Maybe Videos)

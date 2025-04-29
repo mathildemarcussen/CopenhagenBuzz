@@ -56,9 +56,10 @@ class MainActivity : AppCompatActivity() {
     /**
      * ViewBindings used to make the interaction between the code and our views easier.
      */
-    private lateinit var gestureDetector: GestureDetector
     private lateinit var binding: ActivityMainBinding
     private lateinit var auth: FirebaseAuth
+    private lateinit var gestureDetector: GestureDetector
+
 
     /**
      * The companion object defines class level functions,
@@ -115,7 +116,7 @@ class MainActivity : AppCompatActivity() {
          * Calls startActivity to launch LoginActivity
          * Calls finish to close MainActivity
          */
-         val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
+        val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
         userButton.setOnClickListener {
             if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
                 drawerLayout.closeDrawer(GravityCompat.START)
@@ -126,7 +127,14 @@ class MainActivity : AppCompatActivity() {
         val user = FirebaseAuth.getInstance().currentUser
 
         if (user != null) {
-            makeBottomSheet()
+            navController.addOnDestinationChangedListener { _, destination, _ ->
+                if (destination.id == R.id.timelineFragment) {
+                    makeBottomSheet()
+                    binding.swipeArea.visibility = View.VISIBLE
+                } else {
+                    binding.swipeArea.visibility = View.GONE
+                }
+            }
             val navigationView = findViewById<NavigationView>(R.id.navigation_view)
             val menu = navigationView.menu
             menu.findItem(R.id.accountname_item).title = user?.displayName ?: "Anonymous"
@@ -211,8 +219,12 @@ class MainActivity : AppCompatActivity() {
                     if (e1 != null && e2 != null) {
                         val deltaY = e2.y - e1.y
                         if (deltaY < -100) { // Swipe up detected
-                            val myBottomSheet = ModalBottomSheet() // Create an instance of the modal bottom sheet
-                            myBottomSheet.show(supportFragmentManager, ModalBottomSheet.TAG) // Show the bottom sheet
+                            val myBottomSheet =
+                                ModalBottomSheet() // Create an instance of the modal bottom sheet
+                            myBottomSheet.show(
+                                supportFragmentManager,
+                                ModalBottomSheet.TAG
+                            ) // Show the bottom sheet
                             return true
                         }
                     }
@@ -235,7 +247,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startLoginActivity() {
-        Intent(this, LoginActivity::class.java).apply{
+        Intent(this, LoginActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                     Intent.FLAG_ACTIVITY_CLEAR_TASK
         }.let(::startActivity)
@@ -255,6 +267,7 @@ class MainActivity : AppCompatActivity() {
                 signinSignout()
                 true
             }
+
             else -> super.onOptionsItemSelected(item)
         }
     }

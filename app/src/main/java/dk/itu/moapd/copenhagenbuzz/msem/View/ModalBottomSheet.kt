@@ -41,7 +41,9 @@ import dk.itu.moapd.copenhagenbuzz.msem.Model.LocationService
 import dk.itu.moapd.copenhagenbuzz.msem.MyApplication
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.time.withTimeout
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import java.io.IOException
 import java.util.Locale
 
@@ -159,14 +161,27 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
      * and updates the event object.
      */
     private fun createEvent() {
-        val auth = FirebaseAuth.getInstance()
-        val database = Firebase.database(DATABASE_URL).reference
         val objectType = "default"
 
         //Initializes the user inputs as variables
         bottomBinding.fabAddEvent.setOnClickListener { view ->
-            val eventLocation = bottomBinding.editTextEventLocation.text.toString().trim()
-            if (eventLocation.isEmpty()) {
+            val eventLocation = bottomBinding.editTextEventLocation.text.toString()
+
+            if (eventLocation != "") {
+                lifecycleScope.launch {
+                    val locationResult = geocodeAddress(
+                        requireContext(),
+                        bottomBinding.editTextEventLocation.text.toString()
+                    )
+                    Log.d("GeoCoding", "got locationResult {$locationResult}")
+                    if (locationResult != null) {
+                        // Do something with the result (e.g., update the event location)
+                        val (latitude, longitude) = locationResult
+                        event.eventLocation = EventLocation(latitude, longitude, eventLocation)
+                    }
+                    addEventToDatabase(view)
+                }
+            } else {
                 fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                     if (location != null) {
                         val geocoder = Geocoder(requireContext(), Locale.getDefault())
@@ -175,63 +190,61 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
                         val address =
                             addresses?.firstOrNull()?.getAddressLine(0) ?: "Unknown location"
 
+                        Log.d("test", "Accessed Location != null")
+
                         event.eventLocation = EventLocation(
                             latitude = location.latitude,
                             longitude = location.longitude,
                             address = address
                         )
+                        Log.d("test", "Location set ${event.eventLocation}")
+
                     } else {
-                        event.eventLocation = EventLocation()
+                        event.eventLocation = EventLocation(55.40, 72.9097, "Helvede")
+                        Log.d("test", "Accessed Location = null")
+
                     }
-                }
-            } else {
-                lifecycleScope.launch {
-                    val locationResult = geocodeAddress(
-                        requireContext(),
-                        bottomBinding.editTextEventLocation.text.toString()
-                    )
-                    if (locationResult != null) {
-                        // Do something with the result (e.g., update the event location)
-                        val (latitude, longitude) = locationResult
-                        event.eventLocation = EventLocation(latitude, longitude)
-                    }
-                }
 
-            }
-
-            val eventName = bottomBinding.editTextEventName.text.toString()
-            val eventDate = bottomBinding.editTextEventDate.text.toString()
-            val eventDescription = bottomBinding.editTextEventDiscription.text.toString()
-            val userID = auth.currentUser?.uid.toString() // we know it is bad code okay
-
-
-            if (eventName.isNotEmpty() && event.eventLocation != null) {
-                // Update the object attributes.
-                event.eventName = eventName
-                event.eventLocation = event.eventLocation
-                event.eventDate = eventDate
-                event.eventType = eventType
-                event.eventDescription = eventDescription
-                event.userID = userID
-                // Calls the Snackbar so it gets shown when the button is clicked
-                Snackbar(view)
-                //Log the created event
-                Log.d(TAG, "Event created ${event}")
-
-                auth.currentUser?.let { user ->
-                    val eventRef = database
-                        .child("CopenhagenBuzz")
-                        .child("events")
-                        .push()
-
-                    eventRef.setValue(event)
+                    addEventToDatabase(view)
                 }
             }
 
         }
-
     }
 
+    fun addEventToDatabase(view: View) {
+
+        val auth = FirebaseAuth.getInstance()
+        val database = Firebase.database(DATABASE_URL).reference
+
+        val eventName = bottomBinding.editTextEventName.text.toString()
+        val eventDate = bottomBinding.editTextEventDate.text.toString()
+        val eventDescription = bottomBinding.editTextEventDiscription.text.toString()
+        val userID = auth.currentUser?.uid.toString() // we know it is bad code okay
+
+
+        if (eventName.isNotEmpty() && event.eventLocation != null) {
+            // Update the object attributes.
+            event.eventName = eventName
+            event.eventDate = eventDate
+            event.eventType = eventType
+            event.eventDescription = eventDescription
+            event.userID = userID
+            // Calls the Snackbar so it gets shown when the button is clicked
+            Snackbar(view)
+            //Log the created event
+            Log.d(TAG, "Event created ${event}")
+
+            auth.currentUser?.let { user ->
+                val eventRef = database
+                    .child("CopenhagenBuzz")
+                    .child("events")
+                    .push()
+
+                eventRef.setValue(event)
+            }
+        }
+    }
 
     /**
      * function takes a view and creates a snackbar with a message for when events are created.
@@ -326,14 +339,16 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
         addressString: String
     ): Pair<Double, Double>? = withContext(Dispatchers.IO) {
         try {
-            val geo = Geocoder(context, Locale.getDefault())
-            // Maks 1 resultat tilbage
-            val results = geo.getFromLocationName(addressString, 1)
-            if (!results.isNullOrEmpty()) {
-                val addr = results[0]
-                addr.latitude to addr.longitude
-            } else {
-                null  // Intet resultat
+            withTimeout(10000) {
+                val geo = Geocoder(context, Locale.getDefault())
+                // Maks 1 resultat tilbage
+                val results = geo.getFromLocationName(addressString, 1)
+                if (!results.isNullOrEmpty()) {
+                    val addr = results[0]
+                    addr.latitude to addr.longitude
+                } else {
+                    null  // Intet resultat
+                }
             }
         } catch (e: IOException) {
             e.printStackTrace()

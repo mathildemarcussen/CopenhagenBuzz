@@ -18,22 +18,38 @@ import android.content.SharedPreferences
 import android.location.Location
 import android.os.Build
 import android.os.IBinder
-import androidx.collection.emptyLongSet
+import android.util.Log
+import android.widget.TextView
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.FragmentMapsBinding
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.tasks.CancellationToken
+import com.google.android.gms.tasks.OnTokenCanceledListener
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
+import dk.itu.moapd.copenhagenbuzz.msem.DATABASE_URL
+import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.Model.LocationService
-import dk.itu.moapd.copenhagenbuzz.msem.Model.LocationService.SharedPreferenceUtil.toSimpleDateFormat
 import dk.itu.moapd.copenhagenbuzz.msem.R
-import java.util.Locale
+import com.google.android.gms.maps.model.Marker
+
 
 class MapsFragment : Fragment() {
     private var _binding: FragmentMapsBinding? = null
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private val markerEventMap = mutableMapOf<Marker, Event>()
+
 
     private inner class LocationBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -82,10 +98,22 @@ class MapsFragment : Fragment() {
 
 
     private val callback = OnMapReadyCallback { googleMap ->
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
-        // Add a marker in IT University of Copenhagen and move the camera.
-        val itu = LatLng(55.6596, 12.5910)
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(itu))
+        fusedLocationClient.getCurrentLocation(
+            Priority.PRIORITY_BALANCED_POWER_ACCURACY,
+            object : CancellationToken() {
+                override fun onCanceledRequested(listener: OnTokenCanceledListener) = this
+                override fun isCancellationRequested() = false
+            }
+        ).addOnSuccessListener { location ->
+            if (location != null) {
+                val latLong = LatLng(location.latitude, location.longitude)
+                Log.d("Camera Movement", "Moved camera to point {$latLong}")
+                googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLong))
+            }
+        }
+
 
         // Move the Google Maps UI buttons under the OS top bar.
         googleMap.setPadding(0, 100, 0, 0)
@@ -96,7 +124,77 @@ class MapsFragment : Fragment() {
         } else {
             requestUserPermissions()
         }
+
+        val database = Firebase.database(DATABASE_URL).reference
+        val eventsRef = database
+            .child("CopenhagenBuzz")
+            .child("events")
+
+
+        eventsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (eventSnapshot in snapshot.children) {
+                    val event = eventSnapshot.getValue(Event::class.java)
+                    val locationSnapshot = eventSnapshot.child("eventLocation")
+                    val lat = locationSnapshot.child("latitude").getValue(Double::class.java)
+                    val lng = locationSnapshot.child("longitude").getValue(Double::class.java)
+
+                    val name = eventSnapshot.child("eventName").getValue(String::class.java)
+
+                    if (lat != null && lng != null) {
+                        val position = LatLng(lat, lng)
+                        val marker = googleMap.addMarker(
+                            MarkerOptions()
+                                .position(position)
+                                .title(name)
+
+
+                        )
+                        if(marker != null && event !=null) {
+                            markerEventMap[marker] = event
+                        }
+
+                    }
+                    googleMap.setOnMarkerClickListener { marker ->
+                        val event = markerEventMap[marker]
+                        marker.showInfoWindow()
+                        true
+                    }
+
+                    googleMap.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
+                        override fun getInfoContents(marker: com.google.android.gms.maps.model.Marker): View? {
+                            val infoView = layoutInflater.inflate(R.layout.custom_info_window, null)
+
+                            val titleView = infoView.findViewById<TextView>(R.id.info_title)
+                            val descView = infoView.findViewById<TextView>(R.id.info_description)
+                            val dateView = infoView.findViewById<TextView>(R.id.info_date)
+                            val typeView = infoView.findViewById<TextView>(R.id.info_type)
+                            val addView = infoView.findViewById<TextView>(R.id.info_address)
+
+                            titleView.text = marker.title
+
+                            val event1 = markerEventMap[marker]
+                            dateView.text = event1?.eventDate ?: "Unknown date"
+                            typeView.text = event1?.eventType ?: "Unknown type"
+                            descView.text = event1?.eventDescription ?: "Unknown description"
+                            addView.text = event1?.eventLocation?.address ?: "Unknown Locatoin"
+
+                            return infoView
+                        }
+
+                        override fun getInfoWindow(marker: com.google.android.gms.maps.model.Marker): View? =
+                            null
+                    })
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("FirebaseError", "Failed to read event locations: ${error.message}")
+            }
+        })
+
     }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
