@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import kotlinx.coroutines.launch
+import androidx.camera.core.CameraSelector
 
 class EventViewModel : ViewModel() {
     private val _events = MutableLiveData<List<Event>>(emptyList())
@@ -17,7 +18,15 @@ class EventViewModel : ViewModel() {
         _favorites = _events
     }
 
+    var _selector = MutableLiveData<CameraSelector>()
 
+    val selector: LiveData<CameraSelector>
+            get() = _selector
+
+
+    fun onCameraSelectorChanged(selector: CameraSelector) {
+            this._selector.value = selector
+        }
 
 
 

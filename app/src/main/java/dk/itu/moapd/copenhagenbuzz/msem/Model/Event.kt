@@ -23,6 +23,7 @@
 */
 package dk.itu.moapd.copenhagenbuzz.msem.Model
 
+import android.net.Uri
 import java.util.UUID
 
 /**
@@ -43,7 +44,8 @@ data class Event(
     var eventDate: String? = "",
     var eventType: String? = "",
     var eventDescription: String? = "",
-    var userID : String? = ""
+    var userID : String? = "",
+    var photourl: String? = ""
 
 ) {
 

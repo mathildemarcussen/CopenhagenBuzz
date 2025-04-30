@@ -16,7 +16,7 @@
 
 
 ## Exercise 10
-[] Set up firebase storage for images
+[X] Set up firebase storage for images
 [] Implementing Photo Capture and Selection
 [] Uploading Photos to Firebase Storage and associating Events
 [] Downloading Photos from a Firebase Storage Bucket
@@ -33,3 +33,4 @@
 ## When everything is done
 [] Check that there isn't un used code
 [] Make sure that there are kDOC in activity main
+[] Make sure we use resources every where

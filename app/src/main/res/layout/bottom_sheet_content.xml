@@ -1,42 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
-
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:elevation="@dimen/fab_margin"
-        android:outlineProvider="bounds"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/lavender_mist"
-        >
+        android:outlineProvider="bounds"
+        app:elevation="@dimen/fab_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="?attr/actionBarSize"
-            >
+            android:minHeight="?attr/actionBarSize">
 
             <TextView
-                style="?textAppearanceHeadlineSmall"
                 android:id="@+id/text_view_app_name"
+                style="?textAppearanceHeadlineSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/fab_margin"
                 android:layout_marginStart="@dimen/swipe_height"
+                android:layout_marginTop="@dimen/fab_margin"
                 android:layout_marginEnd="@dimen/top_appbar_height"
-                android:text= "@string/app_name"
                 android:gravity="center_horizontal"
+                android:text="@string/app_name"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -45,12 +40,11 @@
                 android:id="@+id/login"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:drawableLeft="@drawable/baseline_login_24"
-                android:contentDescription="@string/app_name"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                tools:ignore="ButtonStyle"
+                android:contentDescription="@string/app_name"
+                android:drawableLeft="@drawable/baseline_login_24"
                 android:gravity="end"
-                />
+                tools:ignore="ButtonStyle" />
         </androidx.appcompat.widget.Toolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -60,15 +54,15 @@
         android:id="@+id/text_field_event_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/fab_margin"
         android:layout_marginStart="@dimen/fab_margin"
         android:layout_marginTop="@dimen/margin_top"
+        android:layout_marginEnd="@dimen/fab_margin"
         android:hint="@string/event_name"
-        app:startIconDrawable="@drawable/baseline_festival_24"
         app:endIconMode="clear_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appbar">
+        app:layout_constraintTop_toBottomOf="@+id/appbar"
+        app:startIconDrawable="@drawable/baseline_festival_24">
 
 
         <com.google.android.material.textfield.TextInputEditText
@@ -84,15 +78,15 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
 
-        android:layout_marginEnd="@dimen/fab_margin"
         android:layout_marginStart="@dimen/fab_margin"
         android:layout_marginTop="@dimen/fab_margin"
+        android:layout_marginEnd="@dimen/fab_margin"
         android:hint="@string/event_location"
-        app:startIconDrawable="@drawable/baseline_add_location_alt_24"
         app:endIconMode="clear_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_field_event_name">
+        app:layout_constraintTop_toBottomOf="@id/text_field_event_name"
+        app:startIconDrawable="@drawable/baseline_add_location_alt_24">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/edit_text_event_location"
@@ -107,16 +101,15 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
 
-        android:layout_marginEnd="@dimen/fab_margin"
         android:layout_marginStart="@dimen/fab_margin"
         android:layout_marginTop="@dimen/fab_margin"
+        android:layout_marginEnd="@dimen/fab_margin"
         android:hint="@string/event_date"
-        app:startIconDrawable="@drawable/baseline_date_range_24"
         app:endIconMode="clear_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_field_event_location">
-
+        app:layout_constraintTop_toBottomOf="@id/text_field_event_location"
+        app:startIconDrawable="@drawable/baseline_date_range_24">
 
 
         <com.google.android.material.textfield.TextInputEditText
@@ -133,16 +126,15 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
 
-        android:layout_marginEnd="@dimen/fab_margin"
         android:layout_marginStart="@dimen/fab_margin"
         android:layout_marginTop="@dimen/fab_margin"
+        android:layout_marginEnd="@dimen/fab_margin"
         android:hint="@string/event_type"
-        app:startIconDrawable="@drawable/baseline_celebration_24"
         app:endIconMode="dropdown_menu"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_field_event_date">
-
+        app:layout_constraintTop_toBottomOf="@id/text_field_event_date"
+        app:startIconDrawable="@drawable/baseline_celebration_24">
 
 
         <AutoCompleteTextView
@@ -158,9 +150,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
 
-        android:layout_marginEnd="@dimen/fab_margin"
         android:layout_marginStart="@dimen/fab_margin"
         android:layout_marginTop="@dimen/fab_margin"
+        android:layout_marginEnd="@dimen/fab_margin"
         android:hint="@string/event_description"
         app:endIconMode="clear_text"
         app:layout_constraintEnd_toEndOf="parent"
@@ -178,20 +170,39 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <ImageButton
+        android:id="@+id/add_pictures"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_marginTop="@dimen/margin_small_top"
+        android:layout_marginEnd="@dimen/margin_end_cam"
+
+        android:contentDescription="@string/photos_button"
+        app:layout_constraintEnd_toEndOf="parent"
+
+        app:layout_constraintRight_toLeftOf="@id/fab_add_event"
+        app:layout_constraintTop_toBottomOf="@id/text_field_event_description"
+        app:srcCompat="@drawable/baseline_add_a_photo_24" />
+
+
+    <ImageButton
         android:id="@+id/fab_add_event"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 
-        android:layout_marginEnd="@dimen/margin_end"
         android:layout_marginTop="@dimen/margin_small_top"
+        android:layout_marginEnd="@dimen/margin_end"
 
-        app:srcCompat="@drawable/baseline_add_24"
-
+        android:contentDescription="@string/event_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_field_event_description" />
 
+        app:layout_constraintTop_toBottomOf="@id/text_field_event_description"
+        app:srcCompat="@drawable/baseline_add_24" />
+
+    <include
+        android:id="@+id/camera"
+        layout="@layout/camera" />
 
 
 

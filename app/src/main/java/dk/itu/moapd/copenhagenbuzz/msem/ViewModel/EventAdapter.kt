@@ -15,6 +15,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.squareup.picasso.Picasso
 import dk.itu.moapd.copenhagenbuzz.msem.DATABASE_URL
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.R
@@ -27,8 +28,8 @@ class EventAdapter(context: Context, fragmentManager: FragmentManager, events: L
         private val fragmentManager = fragmentManager
 
     override fun populateView(v: View, model: Event, position: Int) {
-
         val binding = EventRowItemBinding.bind(v)
+        binding.eventImage.setImageResource(R.drawable.nyhavn)
         val deleteButton = v.findViewById<ImageButton>(R.id.delete_icon)
         val editButton = v.findViewById<MaterialButton>(R.id.edit_button)
 
@@ -43,6 +44,12 @@ class EventAdapter(context: Context, fragmentManager: FragmentManager, events: L
         } else {
             deleteButton.visibility = View.GONE
             editButton.visibility = View.GONE
+        }
+
+        if (!model.photourl.isNullOrBlank()) {
+            Picasso.get()
+                .load(model.photourl)
+                .into(binding.eventImage)
         }
 
         deleteButton.setOnClickListener {
