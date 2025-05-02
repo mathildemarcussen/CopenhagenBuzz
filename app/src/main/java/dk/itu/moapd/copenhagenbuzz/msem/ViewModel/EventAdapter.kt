@@ -1,6 +1,7 @@
 package dk.itu.moapd.copenhagenbuzz.msem.ViewModel
 
 import android.content.Context
+import android.content.Intent
 import android.media.Image
 import android.util.Log
 import android.view.View
@@ -32,6 +33,7 @@ class EventAdapter(context: Context, fragmentManager: FragmentManager, events: L
         binding.eventImage.setImageResource(R.drawable.nyhavn)
         val deleteButton = v.findViewById<ImageButton>(R.id.delete_icon)
         val editButton = v.findViewById<MaterialButton>(R.id.edit_button)
+        val shareButton = v.findViewById<MaterialButton>(R.id.share_button)
 
 
         val auth = FirebaseAuth.getInstance()
@@ -54,6 +56,10 @@ class EventAdapter(context: Context, fragmentManager: FragmentManager, events: L
 
         deleteButton.setOnClickListener {
             deleteEvent(eventID)
+        }
+
+        shareButton.setOnClickListener{
+            shareEvent(model)
         }
 
         editButton.setOnClickListener {
@@ -162,6 +168,29 @@ class EventAdapter(context: Context, fragmentManager: FragmentManager, events: L
             eventRef.removeValue()
         }
 
+    }
+
+    private fun shareEvent(event: Event) {
+        val context = fragmentManager.fragments.firstOrNull()?.context ?: return
+
+        val shareText = """
+        Check out this event!
+        
+        Name: ${event.eventName}
+        Type: ${event.eventType}
+        Date: ${event.eventDate}
+        Location: ${event.eventLocation?.address}
+        Description: ${event.eventDescription}
+    """.trimIndent()
+
+        val sendIntent: Intent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, shareText)
+            type = "text/plain"
+        }
+
+        val shareIntent = Intent.createChooser(sendIntent, null)
+        context.startActivity(shareIntent)
     }
 
     private fun setFavoriteIcon(favoriteButton: ImageButton, isLiked: Boolean) {
