@@ -8,6 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import android.Manifest
+import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
@@ -22,6 +24,7 @@ import android.util.Log
 import android.widget.TextView
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -43,12 +46,15 @@ import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.Model.LocationService
 import dk.itu.moapd.copenhagenbuzz.msem.R
 import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.location.Geofence
+import dk.itu.moapd.copenhagenbuzz.msem.Model.GeofenceBroadcastReceiver
 
 
 class MapsFragment : Fragment() {
     private var _binding: FragmentMapsBinding? = null
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private val markerEventMap = mutableMapOf<Marker, Event>()
+    lateinit var geofencingClient: GeofencingClient
 
 
     private inner class LocationBroadcastReceiver : BroadcastReceiver() {
@@ -97,6 +103,7 @@ class MapsFragment : Fragment() {
     }
 
 
+    @SuppressLint("MissingPermission")
     private val callback = OnMapReadyCallback { googleMap ->
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
@@ -202,6 +209,16 @@ class MapsFragment : Fragment() {
     ): View? = FragmentMapsBinding.inflate(inflater, container, false).also {
         _binding = it
     }.root
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        geofencingClient = LocationServices.getGeofencingClient(requireActivity())
+    }
+    private val geofenceIntent: PendingIntent by lazy {
+        val intent = Intent(requireContext(), GeofenceBroadcastReceiver::class.java)
+        PendingIntent.getBroadcast(requireContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
