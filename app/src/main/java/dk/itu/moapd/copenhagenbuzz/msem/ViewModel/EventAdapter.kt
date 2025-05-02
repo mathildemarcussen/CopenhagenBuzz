@@ -16,7 +16,6 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.squareup.picasso.Picasso
-import dk.itu.moapd.copenhagenbuzz.msem.DATABASE_URL
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.R
 import dk.itu.moapd.copenhagenbuzz.msem.View.EditFragment
@@ -82,7 +81,7 @@ class EventAdapter(context: Context, fragmentManager: FragmentManager, events: L
         val favoriteButton = v.findViewById<ImageButton>(R.id.lFavorite_icon)
 
 
-        val favoritesRef = Firebase.database(DATABASE_URL)
+        val favoritesRef = Firebase.database
             .reference
             .child("CopenhagenBuzz")
             .child("favorites")
@@ -119,7 +118,7 @@ class EventAdapter(context: Context, fragmentManager: FragmentManager, events: L
     private fun addToFavorite(event: String) {
 
         val auth = FirebaseAuth.getInstance()
-        val database = Firebase.database(DATABASE_URL).reference
+        val database = Firebase.database.reference
 
         auth.currentUser?.let { user ->
             val eventRef = database
@@ -136,7 +135,7 @@ class EventAdapter(context: Context, fragmentManager: FragmentManager, events: L
 
     private fun removeFromFavorite(event: String) {
         val auth = FirebaseAuth.getInstance()
-        val database = Firebase.database(DATABASE_URL).reference
+        val database = Firebase.database.reference
 
         auth.currentUser?.let { user ->
             val eventRef = database
@@ -151,7 +150,7 @@ class EventAdapter(context: Context, fragmentManager: FragmentManager, events: L
 
     private fun deleteEvent(eventID: String) {
         val auth = FirebaseAuth.getInstance()
-        val database = Firebase.database(DATABASE_URL).reference
+        val database = Firebase.database.reference
 
         auth.currentUser?.let { user ->
             val eventRef = database

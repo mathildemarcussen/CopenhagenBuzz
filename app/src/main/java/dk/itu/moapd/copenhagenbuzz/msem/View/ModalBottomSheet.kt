@@ -44,7 +44,6 @@ import dk.itu.moapd.copenhagenbuzz.msem.databinding.BottomSheetContentBinding
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import dk.itu.moapd.copenhagenbuzz.msem.DATABASE_URL
 import dk.itu.moapd.copenhagenbuzz.msem.Model.EventLocation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -228,104 +227,6 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
     }
 
 
-    private fun launchCamera() {
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
-        bottomBinding.addPictures.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED
-            ) {
-                requestPermissions(arrayOf(Manifest.permission.CAMERA), 101)
-                return@setOnClickListener
-            }
-
-            cameraProviderFuture.addListener(
-                {
-                    val cameraProvider = cameraProviderFuture.get()
-                    val preview = Preview.Builder().build().also {
-                        it.setSurfaceProvider(bottomBinding.camera.viewFinder.surfaceProvider)
-                    }
-                    val imageCapture = ImageCapture.Builder().build()
-                    this.imageCapture = imageCapture
-                    bottomBinding.camera.buttonImageViewer.visibility = View.VISIBLE
-                    bottomBinding.camera.buttonCameraSwitch.visibility = View.VISIBLE
-                    bottomBinding.camera.buttonImageCapture.visibility = View.VISIBLE
-
-                    updateCameraSwitchButton(cameraProvider)
-
-                    try {
-                        cameraProvider.unbindAll()
-                        cameraProvider.bindToLifecycle(
-                            this,
-                            cameraSelector,
-                            preview,
-                            imageCapture
-                        )
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Failed to bind camera", e)
-                    }
-                }, ContextCompat.getMainExecutor(requireContext())
-            )
-        }
-        bottomBinding.camera.buttonCameraSwitch.setOnClickListener {
-            cameraSelector = if (cameraSelector == CameraSelector.DEFAULT_FRONT_CAMERA)
-                CameraSelector.DEFAULT_BACK_CAMERA
-            else
-                CameraSelector.DEFAULT_FRONT_CAMERA
-            viewModel._selector.value = cameraSelector
-            val cameraFacing =
-                if (cameraSelector == CameraSelector.DEFAULT_FRONT_CAMERA) "Back" else "Front"
-            Log.d(TAG, "Switching Cameras $cameraFacing")
-            launchCamera()
-        }
-    }
-
-    private fun takePhoto() {
-        val imgCapture = imageCapture ?: return
-        val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val filename = "IMG_${timestamp}.jpg"
-
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DCIM)
-        }
-
-        val outputFileOptions = ImageCapture.OutputFileOptions
-            .Builder(
-                requireActivity().contentResolver,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues
-            ).build()
-
-        imgCapture.takePicture(
-            outputFileOptions,
-            ContextCompat.getMainExecutor(requireContext()),
-            object : ImageCapture.OnImageSavedCallback {
-                override fun onImageSaved(
-                    output: ImageCapture.OutputFileResults
-                ) {
-                    saveImage(output, filename)
-                }
-
-                override fun onError(exception: ImageCaptureException) {
-                    Log.e("TAG", "Photo capture failed: ${exception.message}")
-                }
-            }
-        )
-    }
-
-    fun saveImage(output: ImageCapture.OutputFileResults, filename: String) {
-        val savedUri = output.savedUri
-        Log.d("TAG", "Photo saved at ${savedUri}")
-        val file = File(
-            requireContext().cacheDir,
-            filename
-        ) // Using cacheDir for a temporary file path
-        bitmap = BitmapFactory.decodeStream(
-            requireActivity().contentResolver.openInputStream(savedUri!!)
-        )
-    }
-
     fun saveImageToFirebaseStorage(bitmap: Bitmap) {
         val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val filename = "IMG_${timestamp}.jpg"
@@ -354,23 +255,6 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
                 Log.e("TAG", "Error uploading photo: ${exception.message}")
             }
 
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        if (requestCode == 101) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                launchCamera()
-            } else {
-                Toast.makeText(requireContext(), "Camera permission denied", Toast.LENGTH_SHORT)
-                    .show()
-            }
-        }
     }
 
 
@@ -470,64 +354,11 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
         bottomBinding.editTextEventDiscription.text?.clear()
     }
 
-    fun addEventToDatabase(view: View) {
-        val auth = FirebaseAuth.getInstance()
-        val database = Firebase.database(DATABASE_URL).reference
-
-        val eventName = bottomBinding.editTextEventName.text.toString()
-        Log.d(TAG, "Event name: ${bottomBinding.editTextEventName.text.toString()}")
-        val eventDate = bottomBinding.editTextEventDate.text.toString()
-        val eventType = bottomBinding.eventTypeMenu.text.toString()
-        val eventDescription = bottomBinding.editTextEventDiscription.text.toString()
-        val userID = auth.currentUser?.uid.toString() // we know it is bad code okay
-        var eventPhotourl = ""
-        Log.d(TAG, "Event photo: $photoURI")
-        if (photoURI.isNotEmpty()) {
-            eventPhotourl = photoURI
-        }
-
-
-        if (eventName.isNotEmpty() && eventPhotourl.isNotEmpty()) {
-            // Update the object attributes.
-            event.eventName = eventName
-            event.eventDate = eventDate
-            event.eventType = eventType
-            event.eventDescription = eventDescription
-            event.userID = userID
-            event.photourl = eventPhotourl
-            // Calls the Snackbar so it gets shown when the button is clicked
-            Snackbar(view, eventName, eventPhotourl)
-            //Log the created event
-            Log.d(TAG, "Event created ${event}")
-            saveImageToFirebaseStorage(bitmap)
-
-            auth.currentUser?.let { user ->
-                val eventRef = database
-                    .child("CopenhagenBuzz")
-                    .child("events")
-                    .push()
-
-                eventRef.setValue(event)
-            }
-            bottomBinding.editTextEventName.setText("")
-            bottomBinding.editTextEventLocation.setText("")
-            bottomBinding.editTextEventDate.setText("")
-            bottomBinding.eventTypeMenu.setText("")
-            bottomBinding.editTextEventDiscription.setText("")
-            photoURI = ""
-
-        } else {
-            Snackbar(view, eventName, eventPhotourl)
-            Log.d(TAG, "${eventName} and  ${eventPhotourl}")
-        }
-    }
-
     /**
      * function takes a view and creates a snackbar with a message for when events are created.
      *
      * @parem view the current view
      */
-    @Composable
     private fun showSnackbar(message: String) {
         parentFragment?.view?.let { view ->
             Snackbar.make(

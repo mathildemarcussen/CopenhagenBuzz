@@ -5,24 +5,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ListView
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.firebase.ui.database.FirebaseListOptions
-import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
-import dk.itu.moapd.copenhagenbuzz.msem.DATABASE_URL
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
-import dk.itu.moapd.copenhagenbuzz.msem.R
-import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.DataViewModel
-import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.EventAdapter
-import com.google.firebase.database.DataSnapshot
 import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.EventViewModel
 import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.FavoriteEventAdapter
+import dk.itu.moapd.copenhagenbuzz.msem.database
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.FragmentFavoritesBinding
 
 
@@ -81,8 +70,6 @@ class FavoritesFragment : Fragment() {
         val auth = FirebaseAuth.getInstance()
         val userId = auth.currentUser?.uid ?: return
 
-        // Reference to the Firebase Realtime Database
-        val database = Firebase.database(DATABASE_URL).reference
 
         // Reference to the user's list of favorite event IDs
         val favoritesRef = database

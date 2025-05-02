@@ -23,7 +23,6 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import dk.itu.moapd.copenhagenbuzz.msem.DATABASE_URL
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.Model.EventLocation
 import dk.itu.moapd.copenhagenbuzz.msem.R
@@ -45,7 +44,7 @@ class EditFragment(_event: Event, eventID: String) : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         super.onCreateDialog(savedInstanceState)
         val auth = FirebaseAuth.getInstance()
-        val database = Firebase.database(DATABASE_URL).reference
+        val database = Firebase.database.reference
 
         _binding = FragmentEditBinding.inflate(layoutInflater)
         val view = binding.root
