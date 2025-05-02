@@ -14,5 +14,5 @@
 .cxx
 local.properties
 # Google Services (e.g APIs or Firebase)
-google-services.json
-.env
+/app/google-services.json
+/app/src/main/assets/secrets.env

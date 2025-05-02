@@ -129,8 +129,6 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
         // Sets up the DatePicker
         DateRangePicker()
 
-        createEvent()
-
         val bottomSheetDialog = dialog as? BottomSheetDialog
         val bottomSheet =
             bottomSheetDialog?.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)

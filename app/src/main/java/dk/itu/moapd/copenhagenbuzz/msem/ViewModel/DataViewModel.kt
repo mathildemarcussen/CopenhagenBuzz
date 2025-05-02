@@ -10,14 +10,13 @@ import com.google.firebase.database.FirebaseDatabase
 import dk.itu.moapd.copenhagenbuzz.msem.DATABASE_URL
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class DataViewModel : ViewModel() {
     private var eventList = MutableLiveData<List<Event>>()
     private var favoriteList = MutableLiveData<List<Event>>()
     val _favorites : LiveData<List<Event>> get() = favoriteList
     val _events: LiveData<List<Event>> get() = eventList
-    val auth = FirebaseAuth.getInstance()
-    val database = FirebaseDatabase.getInstance(DATABASE_URL).reference
 
 
     fun resetCont() {
@@ -40,11 +39,6 @@ class DataViewModel : ViewModel() {
             }
         }
     }
-
-    fun addEvent(event: Event, photoByteArray: ByteArray) {
-
-    }
-
     private fun generateRandomFavorites(events: List <Event >): List <Event > {
         val shuffledIndices = (events.indices).shuffled().take(2).sorted()
         return shuffledIndices.mapNotNull { index -> events.getOrNull(index) }
