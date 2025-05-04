@@ -73,13 +73,11 @@ class FavoritesFragment : Fragment() {
 
         // Reference to the user's list of favorite event IDs
         val favoritesRef = database
-            .child("CopenhagenBuzz")
             .child("favorites")
             .child(userId)
 
         // Reference to the main events table containing all full Event objects
         val eventsRef = database
-            .child("CopenhagenBuzz")
             .child("events")
 
         // Get the list of favorite event IDs

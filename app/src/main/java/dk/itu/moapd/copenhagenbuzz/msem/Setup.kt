@@ -8,21 +8,21 @@ import io.github.cdimascio.dotenv.dotenv
 
 private val DATABASE_URL: String = dotenv {
     directory = "/assets"
-    filename = "env"
+    filename = "secrets.env"
 }["DATABASE_URL"]
 private val DATABASE_NAME: String = dotenv {
     directory = "/assets"
-    filename = "env"
+    filename = "secrets.env"
 }["DATABASE_NAME"]
 
 private val BUCKET_URL: String = dotenv {
     directory = "/assets"
-    filename = "env"
+    filename = "secrets.env"
 }["BUCKET_URL"]
 
 val GEOCODING_API_KEY: String = dotenv {
     directory = "/assets"
-    filename = "env"
+    filename = "secrets.env"
 }["GEOCODING_API_KEY"]
 
 const val DB_EVENTS = "events"
@@ -35,7 +35,8 @@ val auth by lazy {
 
 
 val database by lazy {
-    Firebase.database(DATABASE_URL).reference.child(DATABASE_NAME)
+    Firebase.database(DATABASE_URL).reference
+        .child("CopenhagenBuzz")
 }
 
 

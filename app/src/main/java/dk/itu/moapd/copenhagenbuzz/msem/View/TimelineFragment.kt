@@ -41,7 +41,6 @@ class TimelineFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val query = database
-            .child("CopenhagenBuzz")
             .child("events")
             .orderByChild("eventDate")
 

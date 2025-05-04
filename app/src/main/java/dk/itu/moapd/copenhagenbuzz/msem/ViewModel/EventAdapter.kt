@@ -19,6 +19,7 @@ import com.squareup.picasso.Picasso
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.R
 import dk.itu.moapd.copenhagenbuzz.msem.View.EditFragment
+import dk.itu.moapd.copenhagenbuzz.msem.database
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.EventRowItemBinding
 
 
@@ -81,9 +82,7 @@ class EventAdapter(context: Context, fragmentManager: FragmentManager, events: L
         val favoriteButton = v.findViewById<ImageButton>(R.id.lFavorite_icon)
 
 
-        val favoritesRef = Firebase.database
-            .reference
-            .child("CopenhagenBuzz")
+        val favoritesRef = database
             .child("favorites")
             .child(uid)
 
@@ -118,11 +117,9 @@ class EventAdapter(context: Context, fragmentManager: FragmentManager, events: L
     private fun addToFavorite(event: String) {
 
         val auth = FirebaseAuth.getInstance()
-        val database = Firebase.database.reference
 
         auth.currentUser?.let { user ->
             val eventRef = database
-                .child("CopenhagenBuzz")
                 .child("favorites")
                 .child(user.uid)
                 .child(event)
@@ -135,11 +132,9 @@ class EventAdapter(context: Context, fragmentManager: FragmentManager, events: L
 
     private fun removeFromFavorite(event: String) {
         val auth = FirebaseAuth.getInstance()
-        val database = Firebase.database.reference
 
         auth.currentUser?.let { user ->
             val eventRef = database
-                .child("CopenhagenBuzz")
                 .child("favorites")
                 .child(user.uid)
                 .child(event)
@@ -150,11 +145,9 @@ class EventAdapter(context: Context, fragmentManager: FragmentManager, events: L
 
     private fun deleteEvent(eventID: String) {
         val auth = FirebaseAuth.getInstance()
-        val database = Firebase.database.reference
 
         auth.currentUser?.let { user ->
             val eventRef = database
-                .child("CopenhagenBuzz")
                 .child("events")
                 .child(eventID)
 
