@@ -28,7 +28,7 @@
 [] 
 
 ## Additional Functionality 2 - Share Events
-[X] Add Ability to share event details 
+[X] Add Ability to share event details
 
 ## Test
 [] Make tests

@@ -51,6 +51,20 @@ class EventViewModel : ViewModel() {
             }
         }
     }
+    
+    fun editEvent(event: Event, photoByteArray: ByteArray, eventID: String) {
+        viewModelScope.launch {
+            try {
+                val key = eventID
+                val uri = imageRepository.upload(key, photoByteArray)
+                event.photourl = uri.toString()
+                eventRepository.upload(key, event)
+            } catch (e: Exception) {
+                
+            }
+        }
+    }
+    
     private fun createRepos() {
         eventRepository = EventRepository()
         imageRepository = ImageRepository()

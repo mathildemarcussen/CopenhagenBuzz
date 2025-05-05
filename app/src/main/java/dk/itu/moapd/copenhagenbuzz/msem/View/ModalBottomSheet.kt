@@ -147,7 +147,7 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
 
         myAlertDialog.setPositiveButton("Gallery",
             DialogInterface.OnClickListener { arg0, arg1 ->
-                startTakePictureIntent()
+                startPickPictureIntent()
             })
 
         myAlertDialog.setNegativeButton("Camera", DialogInterface.OnClickListener { arg0, arg1 ->
