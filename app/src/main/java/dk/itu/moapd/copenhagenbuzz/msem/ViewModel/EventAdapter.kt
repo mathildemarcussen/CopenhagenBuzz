@@ -14,13 +14,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
 import com.squareup.picasso.Picasso
-import dk.itu.moapd.copenhagenbuzz.msem.DATABASE_URL
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.R
 import dk.itu.moapd.copenhagenbuzz.msem.View.EditFragment
+import dk.itu.moapd.copenhagenbuzz.msem.database
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.EventRowItemBinding
 
 
@@ -88,9 +86,7 @@ class EventAdapter(context: Context, fragmentManager: FragmentManager, events: L
         val favoriteButton = v.findViewById<ImageButton>(R.id.lFavorite_icon)
 
 
-        val favoritesRef = Firebase.database(DATABASE_URL)
-            .reference
-            .child("CopenhagenBuzz")
+        val favoritesRef = database
             .child("favorites")
             .child(uid)
 
@@ -125,11 +121,9 @@ class EventAdapter(context: Context, fragmentManager: FragmentManager, events: L
     private fun addToFavorite(event: String) {
 
         val auth = FirebaseAuth.getInstance()
-        val database = Firebase.database(DATABASE_URL).reference
 
         auth.currentUser?.let { user ->
             val eventRef = database
-                .child("CopenhagenBuzz")
                 .child("favorites")
                 .child(user.uid)
                 .child(event)
@@ -142,11 +136,9 @@ class EventAdapter(context: Context, fragmentManager: FragmentManager, events: L
 
     private fun removeFromFavorite(event: String) {
         val auth = FirebaseAuth.getInstance()
-        val database = Firebase.database(DATABASE_URL).reference
 
         auth.currentUser?.let { user ->
             val eventRef = database
-                .child("CopenhagenBuzz")
                 .child("favorites")
                 .child(user.uid)
                 .child(event)
@@ -157,11 +149,9 @@ class EventAdapter(context: Context, fragmentManager: FragmentManager, events: L
 
     private fun deleteEvent(eventID: String) {
         val auth = FirebaseAuth.getInstance()
-        val database = Firebase.database(DATABASE_URL).reference
 
         auth.currentUser?.let { user ->
             val eventRef = database
-                .child("CopenhagenBuzz")
                 .child("events")
                 .child(eventID)
 

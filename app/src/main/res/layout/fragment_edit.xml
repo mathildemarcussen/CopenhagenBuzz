@@ -134,6 +134,16 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Buttons -->
+        <ImageButton
+            android:id="@+id/change_image_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:foregroundGravity="center"
+            android:src="@drawable/baseline_add_a_photo_24"
+            app:layout_constraintTop_toBottomOf="@id/text_field_event_description"
+            tools:layout_editor_absoluteX="181dp" />
+
         <LinearLayout
             android:id="@+id/button_layout"
             android:layout_width="wrap_content"

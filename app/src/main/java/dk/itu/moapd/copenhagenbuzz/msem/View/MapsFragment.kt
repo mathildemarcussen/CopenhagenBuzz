@@ -41,7 +41,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import dk.itu.moapd.copenhagenbuzz.msem.DATABASE_URL
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.Model.LocationService
 import dk.itu.moapd.copenhagenbuzz.msem.R
@@ -132,7 +131,7 @@ class MapsFragment : Fragment() {
             requestUserPermissions()
         }
 
-        val database = Firebase.database(DATABASE_URL).reference
+        val database = Firebase.database.reference
         val eventsRef = database
             .child("CopenhagenBuzz")
             .child("events")

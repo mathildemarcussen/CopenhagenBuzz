@@ -2,34 +2,33 @@ package dk.itu.moapd.copenhagenbuzz.msem.View
 
 import android.Manifest
 import android.app.Activity.RESULT_OK
-import android.content.ContentValues
 import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
 import android.location.Geocoder
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import android.os.Parcelable
 import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.Toast
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.camera.core.CameraInfoUnavailableException
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.util.component1
 import androidx.core.util.component2
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -39,49 +38,37 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
-import com.google.firebase.auth.FirebaseAuth
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
-import dk.itu.moapd.copenhagenbuzz.msem.R
-import dk.itu.moapd.copenhagenbuzz.msem.databinding.BottomSheetContentBinding
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
-import dk.itu.moapd.copenhagenbuzz.msem.DATABASE_URL
 import dk.itu.moapd.copenhagenbuzz.msem.Model.EventLocation
+import dk.itu.moapd.copenhagenbuzz.msem.R
+import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.EventViewModel
+import dk.itu.moapd.copenhagenbuzz.msem.databinding.BottomSheetContentBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
 import java.util.Locale
-import androidx.camera.core.CameraInfoUnavailableException
-import androidx.camera.core.ImageCaptureException
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.fragment.app.activityViewModels
-import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.EventViewModel
-import java.io.ByteArrayOutputStream
-import java.text.SimpleDateFormat
-import java.util.Date
 
 
 class ModalBottomSheet : BottomSheetDialogFragment() {
+    val REQUEST_IMAGE_CAPTURE = 42
+    val GALLERY_PICTURE = 1
     private lateinit var bottomBinding: BottomSheetContentBinding
-    private val event: Event = Event("", EventLocation(), "", "", "", "", "")
-    private lateinit var eventType: String
     private lateinit var dateRangeField: TextInputEditText
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private var cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
     private val viewModel: EventViewModel by activityViewModels()
-    private var imageCapture: ImageCapture? = null
-    private lateinit var photoURI: String
-    lateinit var bitmap : Bitmap
+    private var photoByteArray: ByteArray = byteArrayOf(0)
+    private var eventType = ""
 
 
     companion object {
         val TAG = "ModalBottomSheet"
-        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss"
     }
 
 
@@ -101,7 +88,6 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setText()
-        Log.d(TAG, "photoURL $photoURI")
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
 
@@ -119,17 +105,12 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
         bottomBinding.camera.buttonImageViewer.visibility = View.INVISIBLE
         bottomBinding.camera.buttonCameraSwitch.visibility = View.INVISIBLE
         bottomBinding.camera.buttonImageCapture.visibility = View.INVISIBLE
-        launchCamera()
-
 
         // Getting the reference to the date picker UI element
         dateRangeField = bottomBinding.editTextEventDate
 
-
         // Sets up the DatePicker
         DateRangePicker()
-
-        createEvent()
 
         val bottomSheetDialog = dialog as? BottomSheetDialog
         val bottomSheet =
@@ -140,160 +121,127 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
             behavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
 
-
-        // Set up the listener for take photo button.
-        bottomBinding.camera.buttonImageCapture.setOnClickListener {
-            takePhoto()
-        }
+        setupClickBehavior()
 
     }
 
-
-    private fun launchCamera() {
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
-        bottomBinding.addPictures.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED
-            ) {
-                requestPermissions(arrayOf(Manifest.permission.CAMERA), 101)
-                return@setOnClickListener
+    private fun setupClickBehavior() {
+        with(bottomBinding) {
+            addPictures.setOnClickListener {
+                startDialog()
             }
-
-            cameraProviderFuture.addListener(
-                {
-                    val cameraProvider = cameraProviderFuture.get()
-                    val preview = Preview.Builder().build().also {
-                        it.setSurfaceProvider(bottomBinding.camera.viewFinder.surfaceProvider)
-                    }
-                    val imageCapture = ImageCapture.Builder().build()
-                    this.imageCapture = imageCapture
-                    bottomBinding.camera.buttonImageViewer.visibility = View.VISIBLE
-                    bottomBinding.camera.buttonCameraSwitch.visibility = View.VISIBLE
-                    bottomBinding.camera.buttonImageCapture.visibility = View.VISIBLE
-
-                    updateCameraSwitchButton(cameraProvider)
-
-                    try {
-                        cameraProvider.unbindAll()
-                        cameraProvider.bindToLifecycle(
-                            this,
-                            cameraSelector,
-                            preview,
-                            imageCapture
-                        )
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Failed to bind camera", e)
-                    }
-                }, ContextCompat.getMainExecutor(requireContext())
-            )
-        }
-        bottomBinding.camera.buttonCameraSwitch.setOnClickListener {
-            cameraSelector = if (cameraSelector == CameraSelector.DEFAULT_FRONT_CAMERA)
-                CameraSelector.DEFAULT_BACK_CAMERA
-            else
-                CameraSelector.DEFAULT_FRONT_CAMERA
-            viewModel._selector.value = cameraSelector
-            val cameraFacing =
-                if (cameraSelector == CameraSelector.DEFAULT_FRONT_CAMERA) "Back" else "Front"
-            Log.d(TAG, "Switching Cameras $cameraFacing")
-            launchCamera()
+            bottomBinding.fabAddEvent.setOnClickListener {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    onAddEvent()
+                }
+            }
         }
     }
 
-    private fun takePhoto() {
-        val imgCapture = imageCapture ?: return
-        val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val filename = "IMG_${timestamp}.jpg"
+    private fun startDialog() {
+        val myAlertDialog: AlertDialog.Builder = AlertDialog.Builder(
+            requireActivity()
+        )
+        myAlertDialog.setTitle("Upload Pictures Option")
+        myAlertDialog.setMessage("How do you want to set your picture?")
 
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DCIM)
+        myAlertDialog.setPositiveButton("Gallery",
+            DialogInterface.OnClickListener { arg0, arg1 ->
+                startPickPictureIntent()
+            })
+
+        myAlertDialog.setNegativeButton("Camera", DialogInterface.OnClickListener { arg0, arg1 ->
+            startTakePictureIntent()
+        })
+        myAlertDialog.show()
+    }
+
+    private suspend fun onAddEvent() {
+        val event = createEvent()
+
+        if (!event.eventName.isNullOrEmpty() && photoByteArray.isNotEmpty()) {
+            viewModel.addEvent(event, photoByteArray)
+
+            showSnackbar("Successfully added event ${event.eventName}")
+            Log.d(TAG, "Successfully added event ${event.eventName}")
+            clearTextFields()
+        } else {
+            showSnackbar("Error: did you forget event name or photo?")
         }
+    }
 
-        val outputFileOptions = ImageCapture.OutputFileOptions
-            .Builder(
-                requireActivity().contentResolver,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues
-            ).build()
-
-        imgCapture.takePicture(
-            outputFileOptions,
-            ContextCompat.getMainExecutor(requireContext()),
-            object : ImageCapture.OnImageSavedCallback {
-                override fun onImageSaved(
-                    output: ImageCapture.OutputFileResults
-                ) {
-                    saveImage(output, filename)
-                }
-
-                override fun onError(exception: ImageCaptureException) {
-                    Log.e("TAG", "Photo capture failed: ${exception.message}")
-                }
-            }
+    private fun startPickPictureIntent() {
+        var pictureActionIntent: Intent? = null
+        pictureActionIntent = Intent(
+            Intent.ACTION_PICK,
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        )
+        startActivityForResult(
+            pictureActionIntent,
+            GALLERY_PICTURE
         )
     }
 
-    fun saveImage(output: ImageCapture.OutputFileResults, filename: String) {
-        val savedUri = output.savedUri
-        Log.d("TAG", "Photo saved at ${savedUri}")
-        val file = File(
-            requireContext().cacheDir,
-            filename
-        ) // Using cacheDir for a temporary file path
-        bitmap = BitmapFactory.decodeStream(
-            requireActivity().contentResolver.openInputStream(savedUri!!)
-        )
-    }
-
-    fun saveImageToFirebaseStorage(bitmap: Bitmap) {
-        val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val filename = "IMG_${timestamp}.jpg"
-
-        val folder = bottomBinding.editTextEventName.text.toString()
-
-        val storageReference = FirebaseStorage.getInstance().reference
-            .child("${folder}/${filename}")
-        Log.d(TAG, "${folder} her")
-
-        val baos = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-        val data = baos.toByteArray()
-
-        storageReference.putBytes(data)
-            .addOnSuccessListener {
-                // Photo uploaded successfully
-                Log.d("TAG", "Photo uploaded successfully to Firebase Storage")
-                storageReference.downloadUrl.addOnSuccessListener { uri ->
-                    photoURI = uri.toString()
-                    Log.d("TAG", "Photo URI: $photoURI")
-                    // Use this URL to reference the image in your database or elsewhere
+    private fun startTakePictureIntent() {
+        if (checkPermissionsCamera()) {
+            if (isCameraPermissionEnabled()) {
+                val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                try {
+                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+                } catch (e: IOException) {
+                    Log.e(TAG, "Error coould not get image", e)
                 }
             }
-            .addOnFailureListener { exception ->
-                Log.e("TAG", "Error uploading photo: ${exception.message}")
-            }
-
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        if (requestCode == 101) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                launchCamera()
-            } else {
-                Toast.makeText(requireContext(), "Camera permission denied", Toast.LENGTH_SHORT)
-                    .show()
-            }
+        } else {
+            requestCameraPermission()
         }
     }
 
+    private fun isCameraPermissionEnabled(): Boolean {
+        val permission = Manifest.permission.CAMERA
+        val result = ContextCompat.checkSelfPermission(requireContext(), permission)
+        return result == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun requestCameraPermission() {
+        ActivityCompat.requestPermissions(
+            requireActivity(),
+            arrayOf(Manifest.permission.CAMERA),
+            REQUEST_IMAGE_CAPTURE
+        )
+    }
+
+    private fun checkPermissionsCamera(): Boolean {
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            return true
+        }
+        return false
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            val imageBitmap = data?.extras?.get("data") as Bitmap
+            val baos = ByteArrayOutputStream()
+            imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+
+            photoByteArray = baos.toByteArray()
+        } else if (requestCode == GALLERY_PICTURE && resultCode == RESULT_OK) {
+            val imageUri: Uri? = data?.data
+            imageUri?.let {
+                val inputStream = requireContext().contentResolver.openInputStream(it)
+                inputStream?.let { stream ->
+                    photoByteArray = stream.readBytes()
+                    stream.close()
+                }
+            }
+        }
+    }
 
     override fun onStart() {
         super.onStart()
@@ -343,112 +291,52 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
         }
     }
 
+    private suspend fun createEvent(): Event {
+        val name = bottomBinding.editTextEventName.text.toString()
+        val date = bottomBinding.editTextEventDate.text.toString()
+        val type = bottomBinding.eventTypeMenu.text.toString()
+        val description = bottomBinding.editTextEventDiscription.text.toString()
+        val location = getEventLocation()
 
-    /**
-     * Sets up the listener for the "Add Event" button to capture user inputs,
-     * and updates the event object.
-     */
-    private fun createEvent() {
-        //Initializes the user inputs as variables
-        bottomBinding.fabAddEvent.setOnClickListener { view ->
-            val eventLocation = bottomBinding.editTextEventLocation.text.toString()
-
-
-            if (eventLocation != "") {
-                lifecycleScope.launch {
-                    val locationResult = geocodeAddress(
-                        requireContext(),
-                        bottomBinding.editTextEventLocation.text.toString()
-                    )
-                    Log.d("GeoCoding", "got locationResult {$locationResult}")
-                    if (locationResult != null) {
-                        // Do something with the result (e.g., update the event location)
-                        val (latitude, longitude) = locationResult
-                        event.eventLocation = EventLocation(latitude, longitude, eventLocation)
-                    }
-                    addEventToDatabase(view)
-                }
-            } else {
-                fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                    if (location != null) {
-                        val geocoder = Geocoder(requireContext(), Locale.getDefault())
-                        val addresses =
-                            geocoder.getFromLocation(location.latitude, location.longitude, 1)
-                        val address =
-                            addresses?.firstOrNull()?.getAddressLine(0) ?: "Unknown location"
-
-                        Log.d("test", "Accessed Location != null")
-
-                        event.eventLocation = EventLocation(
-                            latitude = location.latitude,
-                            longitude = location.longitude,
-                            address = address
-                        )
-                        Log.d("test", "Location set ${event.eventLocation}")
-
-                    } else {
-                        event.eventLocation = EventLocation(55.40, 72.9097, "Helvede")
-                        Log.d("test", "Accessed Location = null")
-
-                    }
-
-                    addEventToDatabase(view)
-                }
-            }
-
-        }
+        return Event(name, location, date, type, description)
     }
 
-    fun addEventToDatabase(view: View) {
-        val auth = FirebaseAuth.getInstance()
-        val database = Firebase.database(DATABASE_URL).reference
+    private suspend fun getEventLocation(): EventLocation {
+        val address = bottomBinding.editTextEventLocation.text.toString()
+        val geo = Geocoder(requireContext(), Locale.getDefault())
 
-        val eventName = bottomBinding.editTextEventName.text.toString()
-        Log.d(TAG, "Event name: ${bottomBinding.editTextEventName.text.toString()}")
-        val eventDate = bottomBinding.editTextEventDate.text.toString()
-        val eventType = bottomBinding.eventTypeMenu.text.toString()
-        val eventDescription = bottomBinding.editTextEventDiscription.text.toString()
-        val userID = auth.currentUser?.uid.toString() // we know it is bad code okay
-        var eventPhotourl = ""
-        Log.d(TAG, "Event photo: $photoURI")
-        if (photoURI.isNotEmpty()) {
-            eventPhotourl = photoURI
+        if (address.isNotBlank()) {
+            geo.getFromLocationName(address, 1)
+                ?.firstOrNull()
+                ?.let { placemark ->
+                    return EventLocation(
+                        placemark.latitude,
+                        placemark.longitude,
+                        address
+                    )
+                }
         }
+        val location = fusedLocationClient.lastLocation.await()
+        if (location != null) {
+            val line = geo
+                .getFromLocation(location.latitude, location.longitude, 1)
+                ?.firstOrNull()
+                ?.getAddressLine(0).toString()
+                .takeUnless(String::isNullOrBlank)
+                ?: "Unknown location"
 
-
-        if (eventName.isNotEmpty() && eventPhotourl.isNotEmpty()) {
-            // Update the object attributes.
-            event.eventName = eventName
-            event.eventDate = eventDate
-            event.eventType = eventType
-            event.eventDescription = eventDescription
-            event.userID = userID
-            event.photourl = eventPhotourl
-            // Calls the Snackbar so it gets shown when the button is clicked
-            Snackbar(view, eventName, eventPhotourl)
-            //Log the created event
-            Log.d(TAG, "Event created ${event}")
-            saveImageToFirebaseStorage(bitmap)
-
-            auth.currentUser?.let { user ->
-                val eventRef = database
-                    .child("CopenhagenBuzz")
-                    .child("events")
-                    .push()
-
-                eventRef.setValue(event)
-            }
-            bottomBinding.editTextEventName.setText("")
-            bottomBinding.editTextEventLocation.setText("")
-            bottomBinding.editTextEventDate.setText("")
-            bottomBinding.eventTypeMenu.setText("")
-            bottomBinding.editTextEventDiscription.setText("")
-            photoURI = ""
-
-        } else {
-            Snackbar(view, eventName, eventPhotourl)
-            Log.d(TAG, "${eventName} and  ${eventPhotourl}")
+            return EventLocation(location.latitude, location.longitude, line)
         }
+        return EventLocation(55.40, 72.9097, "default")
+
+    }
+
+    private fun clearTextFields() {
+        bottomBinding.editTextEventName.text?.clear()
+        bottomBinding.editTextEventLocation.text?.clear()
+        bottomBinding.editTextEventDate.text?.clear()
+        bottomBinding.eventTypeMenu.text?.clear()
+        bottomBinding.editTextEventDiscription.text?.clear()
     }
 
     /**
@@ -456,19 +344,14 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
      *
      * @parem view the current view
      */
-    fun Snackbar(view: View, eventName: String, eventUrl: String) {
-        com.google.android.material.snackbar.Snackbar.make(
-            view,
-            if (eventName.isNotEmpty() && eventUrl.isNotEmpty()) {
-                "Event added using \n ${event}"
-            } else if (eventName.isNotEmpty() && eventUrl.isEmpty()) {
-                "Missing event photos, if already added wait 10 seconds"
-            } else {
-                "Missing event name"
-            },
-
-            com.google.android.material.snackbar.Snackbar.LENGTH_LONG
-        ).show()
+    private fun showSnackbar(message: String) {
+        parentFragment?.view?.let { view ->
+            Snackbar.make(
+                view,
+                message,
+                Snackbar.LENGTH_LONG
+            ).show()
+        }
     }
 
     fun setText() {
@@ -490,7 +373,6 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
             )
         )
         bottomBinding.eventTypeMenu.setText(sharedPreferences.getString("eventType", ""))
-        photoURI = sharedPreferences.getString("eventPhoto", "") as String
     }
 
     /**
@@ -617,9 +499,6 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
             "eventDescription",
             bottomBinding.editTextEventDiscription.text?.toString()
         )
-
-        editor.putString("eventPhoto", photoURI)
-
         editor.apply()
     }
 

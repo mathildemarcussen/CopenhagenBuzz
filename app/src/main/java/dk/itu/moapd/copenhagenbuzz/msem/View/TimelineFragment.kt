@@ -5,23 +5,17 @@ import android.util.Log
 import android.view.GestureDetector
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.ListView
-import androidx.fragment.app.activityViewModels
 import com.firebase.ui.database.FirebaseListOptions
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import dk.itu.moapd.copenhagenbuzz.msem.DATABASE_URL
-import com.google.firebase.auth.FirebaseAuth
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.R
 import dk.itu.moapd.copenhagenbuzz.msem.View.ModalBottomSheet.Companion.TAG
 import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.EventAdapter
 import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.EventViewModel
+import dk.itu.moapd.copenhagenbuzz.msem.database
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.FragmentTimelineBinding
 
 class TimelineFragment : Fragment() {
@@ -46,8 +40,7 @@ class TimelineFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val query = Firebase.database(DATABASE_URL).reference
-            .child("CopenhagenBuzz")
+        val query = database
             .child("events")
             .orderByChild("eventDate")
 

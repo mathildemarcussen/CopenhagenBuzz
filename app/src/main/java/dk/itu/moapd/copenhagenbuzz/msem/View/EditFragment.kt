@@ -1,17 +1,30 @@
 package dk.itu.moapd.copenhagenbuzz.msem.View
 
+import android.Manifest
+import android.app.Activity.RESULT_OK
 import android.app.Dialog
+import android.content.DialogInterface
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.ImageButton
+import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.util.component1
 import androidx.core.util.component2
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
@@ -23,12 +36,15 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import dk.itu.moapd.copenhagenbuzz.msem.DATABASE_URL
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.Model.EventLocation
 import dk.itu.moapd.copenhagenbuzz.msem.R
+import dk.itu.moapd.copenhagenbuzz.msem.View.ModalBottomSheet.Companion.TAG
+import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.EventViewModel
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.FragmentEditBinding
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.FragmentUserInfoDialogBinding
+import java.io.ByteArrayOutputStream
+import java.io.IOException
 
 class EditFragment(_event: Event, eventID: String) : DialogFragment() {
     private var _binding: FragmentEditBinding? = null
@@ -36,6 +52,10 @@ class EditFragment(_event: Event, eventID: String) : DialogFragment() {
     private var event = _event
     private lateinit var eventType: String
     private lateinit var dateRangeField: TextInputEditText
+    private val viewModel: EventViewModel by activityViewModels()
+    val REQUEST_IMAGE_CAPTURE = 42
+    val GALLERY_PICTURE = 1
+    private var photoByteArray: ByteArray = byteArrayOf(0)
 
    private val binding
         get() = requireNotNull(_binding) {
@@ -45,7 +65,7 @@ class EditFragment(_event: Event, eventID: String) : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         super.onCreateDialog(savedInstanceState)
         val auth = FirebaseAuth.getInstance()
-        val database = Firebase.database(DATABASE_URL).reference
+        val database = Firebase.database.reference
 
         _binding = FragmentEditBinding.inflate(layoutInflater)
         val view = binding.root
@@ -61,8 +81,11 @@ class EditFragment(_event: Event, eventID: String) : DialogFragment() {
         val eventTypeDropdown = binding.eventTypeMenu // Use ViewBinding
         val eventTypes = resources.getStringArray(R.array.event_types)
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, eventTypes)
+        val changePic = view.findViewById<ImageButton>(R.id.change_image_button)
 
-
+        changePic.setOnClickListener {
+            startDialog()
+        }
 
         eventTypeDropdown.setAdapter(adapter)
 
@@ -82,14 +105,7 @@ class EditFragment(_event: Event, eventID: String) : DialogFragment() {
             val userID = auth.currentUser?.uid
             val event = Event(eventName, eventLocation, eventDate, eventType, eventDescription, userID)
 
-            auth.currentUser?.let{ user ->
-                val eventRef = database
-                    .child("CopenhagenBuzz")
-                    .child("events")
-                    .child(eventID)
-
-                eventRef.setValue(event)
-            }
+            viewModel.editEvent(event, photoByteArray, eventID)
         }
         cancelButton.setOnClickListener {
             dismiss()
@@ -178,5 +194,94 @@ class EditFragment(_event: Event, eventID: String) : DialogFragment() {
 
         }
     }
+    private fun startDialog() {
+        val myAlertDialog: AlertDialog.Builder = AlertDialog.Builder(
+            requireActivity()
+        )
+        myAlertDialog.setTitle("Upload Pictures Option")
+        myAlertDialog.setMessage("How do you want to set your picture?")
 
+        myAlertDialog.setPositiveButton("Gallery",
+            DialogInterface.OnClickListener { arg0, arg1 ->
+                startPickPictureIntent()
+            })
+
+        myAlertDialog.setNegativeButton("Camera", DialogInterface.OnClickListener { arg0, arg1 ->
+            startTakePictureIntent()
+        })
+        myAlertDialog.show()
+    }
+
+    private fun startPickPictureIntent() {
+        var pictureActionIntent: Intent? = null
+        pictureActionIntent = Intent(
+            Intent.ACTION_PICK,
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        )
+        startActivityForResult(
+            pictureActionIntent,
+            GALLERY_PICTURE
+        )
+    }
+
+    private fun startTakePictureIntent() {
+        if (checkPermissionsCamera()) {
+            if (isCameraPermissionEnabled()) {
+                val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                try {
+                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+                } catch (e: IOException) {
+                    Log.e(TAG, "Error coould not get image", e)
+                }
+            }
+        } else {
+            requestCameraPermission()
+        }
+    }
+
+    private fun isCameraPermissionEnabled(): Boolean {
+        val permission = Manifest.permission.CAMERA
+        val result = ContextCompat.checkSelfPermission(requireContext(), permission)
+        return result == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun requestCameraPermission() {
+        ActivityCompat.requestPermissions(
+            requireActivity(),
+            arrayOf(Manifest.permission.CAMERA),
+            REQUEST_IMAGE_CAPTURE
+        )
+    }
+
+    private fun checkPermissionsCamera(): Boolean {
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            return true
+        }
+        return false
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            val imageBitmap = data?.extras?.get("data") as Bitmap
+            val baos = ByteArrayOutputStream()
+            imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+
+            photoByteArray = baos.toByteArray()
+        } else if (requestCode == GALLERY_PICTURE && resultCode == RESULT_OK) {
+            val imageUri: Uri? = data?.data
+            imageUri?.let {
+                val inputStream = requireContext().contentResolver.openInputStream(it)
+                inputStream?.let { stream ->
+                    photoByteArray = stream.readBytes()
+                    stream.close()
+                }
+            }
+        }
+    }
 }

@@ -35,7 +35,6 @@ class DataViewModel : ViewModel() {
             }
         }
     }
-
     private fun generateRandomFavorites(events: List <Event >): List <Event > {
         val shuffledIndices = (events.indices).shuffled().take(2).sorted()
         return shuffledIndices.mapNotNull { index -> events.getOrNull(index) }
