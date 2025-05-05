@@ -5,6 +5,7 @@ import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat.getString
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofenceStatusCodes
@@ -36,17 +37,38 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
             // Get the transition details as a String.
             val geofenceTransitionDetails = getGeofenceTransitionDetails(
-                this,
+                context!!,
                 geofenceTransition,
                 triggeringGeofences
             )
 
             // Send notification and log the transition details.
-            sendNotification(geofenceTransitionDetails)
+            sendNotification(context, geofenceTransitionDetails)
             Log.i(TAG, geofenceTransitionDetails)
         } else {
             // Log the error.
             Log.d(TAG, "error")
         }
     }
+    private fun getGeofenceTransitionDetails(
+        context: Context,
+        geofenceTransition: Int,
+        triggeringGeofences: List<Geofence>?
+    ): String {
+        val transitionString = when (geofenceTransition) {
+            Geofence.GEOFENCE_TRANSITION_ENTER -> "Entering"
+            Geofence.GEOFENCE_TRANSITION_EXIT -> "Exiting"
+            else -> "Unknown transition"
+        }
+
+        val ids = triggeringGeofences?.joinToString { it.requestId } ?: "No Geofence IDs"
+        return "$transitionString geofence(s): $ids"
+    }
+
+    private fun sendNotification(context: Context, message: String) {
+        // You could use NotificationManager here to send a proper notification.
+        Log.d(TAG, "Notification: $message")
+        // Or actually build and show a real notification (code omitted here for brevity).
+    }
+
 }
