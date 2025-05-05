@@ -10,8 +10,8 @@ class EventRepository : IRepository<Event> {
         if (userId != null) {
             event.userID = userId
             database
-                .child(key)
                 .child("events")
+                .child(key)
                 .setValue(event)
         }
         return key

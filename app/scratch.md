@@ -11,21 +11,24 @@
 [X] Set up Google Maps Api
 [X] Implementering af Location permissions
 [X] Developing a Geolocation based service
-[X] Persisting GPS Data in the Databse
+[X] Persisting GPS Data in the Database
 [X] Integrating Google Maps
 
 
 ## Exercise 10
 [X] Set up firebase storage for images
-[] Implementing Photo Capture and Selection
-[] Uploading Photos to Firebase Storage and associating Events
-[] Downloading Photos from a Firebase Storage Bucket
+[X] Implementing Photo Capture and Selection
+[X] Uploading Photos to Firebase Storage and associating Events
+[X] Downloading Photos from a Firebase Storage Bucket
+[X] Add getting pictures from Google Photos
+[X] Get the photos for favorites
 
 
 ## Additional Functionality 1 - Geo Fencing
 [] 
 
-## Additional Functionality 2 - ?? (Maybe Videos)
+## Additional Functionality 2 - Share Events
+[X] Add Ability to share event details 
 
 ## Test
 [] Make tests
