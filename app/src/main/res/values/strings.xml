@@ -34,6 +34,8 @@
     <string name="user_photo_description">The user\'s photo from Google Account</string>
     <string name="accountname"> %1$s </string>
     <string name="accountmail"> %1$s </string>
+    <string name="photos_button">Add-Photos</string>
+    <string name="event_button">Add-Event</string>"
     <string name="preference_file_key">dk.itu.moapd.copenhagenbuzz.msem.PREFERENCE_FILE_KEY</string>
 
 

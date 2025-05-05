@@ -55,6 +55,8 @@ dependencies {
     implementation(libs.androidx.material3.android)
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -63,5 +65,12 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation (libs.firebase.ui.database)
     implementation(libs.dotenv.kotlin)
+    implementation(libs.firebase.bom.v33130)
+    implementation(libs.firebase.ui.storage)
+    implementation(libs.firebase.storage.ktx)
+    implementation(libs.androidx.camera.camera2)
+    implementation (libs.picasso)
+
+
 
 }
