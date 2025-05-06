@@ -240,6 +240,9 @@ class MainActivity : AppCompatActivity() {
         userButton.setImageResource(R.drawable.baseline_menu_24)
     }
 
+    /**
+     * Starts the login activity and clears the backstack.
+     */
 
     private fun startLoginActivity() {
         Intent(this, LoginActivity::class.java).apply {
@@ -248,12 +251,24 @@ class MainActivity : AppCompatActivity() {
         }.let(::startActivity)
     }
 
+    /**
+     * Inflates the menu; this adds items to the action bar if it is present.
+     *
+     * @param menu Menu to inflate.
+     * @return true if the menu is inflated, false otherwise.
+     */
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater: MenuInflater = menuInflater
         inflater.inflate(R.menu.navigation_menu, menu)
         return true
     }
 
+    /**
+     * Handles option item selection from the menu.
+     *
+     * @param item The selected menu item.
+     * @return true if the item is selected, false otherwise.
+     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle item selection.
         return when (item.itemId) {
@@ -267,7 +282,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun signinSignout() {
+    /**
+     * Signs in or out the user depending on the current state.
+     * If no user is signed in, starts LoginActivity.
+     * If user is signed in, signs them out and updates the navigation drawer.
+     */
+    private fun signinSignout() {
         val user = FirebaseAuth.getInstance().currentUser
         if (user == null) {
             startLoginActivity()
