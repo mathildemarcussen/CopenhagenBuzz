@@ -25,7 +25,7 @@
 
 
 ## Additional Functionality 1 - Geo Fencing
-[] 
+[X] 
 
 ## Additional Functionality 2 - Share Events
 [X] Add Ability to share event details

@@ -68,7 +68,6 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
     private fun sendNotification(context: Context, message: String) {
         // You could use NotificationManager here to send a proper notification.
         Log.d(TAG, "Notification: $message")
-        // Or actually build and show a real notification (code omitted here for brevity).
     }
 
 }

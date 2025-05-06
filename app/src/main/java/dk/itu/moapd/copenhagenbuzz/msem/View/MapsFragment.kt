@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
@@ -43,13 +42,10 @@ import com.google.android.gms.tasks.OnTokenCanceledListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.Model.LocationService
 import dk.itu.moapd.copenhagenbuzz.msem.R
 import com.google.android.gms.maps.model.Marker
-import dk.itu.moapd.copenhagenbuzz.msem.Model.GeofenceBroadcastReceiver
 import dk.itu.moapd.copenhagenbuzz.msem.database
 
 
@@ -155,8 +151,6 @@ class MapsFragment : Fragment() {
                             MarkerOptions()
                                 .position(position)
                                 .title(name)
-
-
                         )
                         if(marker != null && event !=null) {
                             markerEventMap[marker] = event
@@ -164,13 +158,12 @@ class MapsFragment : Fragment() {
 
                     }
                     googleMap.setOnMarkerClickListener { marker ->
-                        val event = markerEventMap[marker]
                         marker.showInfoWindow()
                         true
                     }
 
                     googleMap.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
-                        override fun getInfoContents(marker: com.google.android.gms.maps.model.Marker): View? {
+                        override fun getInfoContents(marker: Marker): View? {
                             val infoView = layoutInflater.inflate(R.layout.custom_info_window, null)
 
                             val titleView = infoView.findViewById<TextView>(R.id.info_title)
@@ -190,7 +183,7 @@ class MapsFragment : Fragment() {
                             return infoView
                         }
 
-                        override fun getInfoWindow(marker: com.google.android.gms.maps.model.Marker): View? =
+                        override fun getInfoWindow(marker: Marker): View? =
                             null
                     })
                 }
@@ -203,7 +196,6 @@ class MapsFragment : Fragment() {
 
     }
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -214,10 +206,6 @@ class MapsFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         geofencingClient = LocationServices.getGeofencingClient(requireActivity())
-    }
-    private val geofenceIntent: PendingIntent by lazy {
-        val intent = Intent(requireContext(), GeofenceBroadcastReceiver::class.java)
-        PendingIntent.getBroadcast(requireContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
     }
 
 
@@ -362,7 +350,6 @@ class MapsFragment : Fragment() {
                         val eventsInsideGeofence = mutableListOf<String>()
 
                         for (eventSnapshot in snapshot.children) {
-                            val event = eventSnapshot.getValue(Event::class.java)
                             val lat = eventSnapshot.child("eventLocation").child("latitude").getValue(Double::class.java)
                             val lng = eventSnapshot.child("eventLocation").child("longitude").getValue(Double::class.java)
 
@@ -412,7 +399,6 @@ class MapsFragment : Fragment() {
             .setPositiveButton("OK", null)
             .show()
     }
-
 
     private fun drawGeofenceCircle(center: LatLng, radius: Int) {
         val mapFragment = childFragmentManager.findFragmentById(binding.map.id) as SupportMapFragment?
