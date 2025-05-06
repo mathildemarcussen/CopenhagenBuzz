@@ -38,7 +38,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.ActivityMainBinding
@@ -152,7 +151,6 @@ class MainActivity : AppCompatActivity() {
                     signinSignout()
                     true
                 }
-                // Her kan du også håndtere andre navigation items, hvis du vil
                 else -> false
             }
         }
@@ -242,9 +240,6 @@ class MainActivity : AppCompatActivity() {
         userButton.setImageResource(R.drawable.baseline_menu_24)
     }
 
-    override fun onStart() {
-        super.onStart()
-    }
 
     private fun startLoginActivity() {
         Intent(this, LoginActivity::class.java).apply {

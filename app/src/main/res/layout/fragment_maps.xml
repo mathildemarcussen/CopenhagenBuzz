@@ -28,7 +28,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="16dp"
-        android:layout_marginVertical="100dp"
-        android:text="Add Geofence" />
+        android:layout_marginBottom="@dimen/list_item_spacing"
+        android:layout_marginVertical="@dimen/image_view_height"
+        android:text="@string/add_geofence" />
 </FrameLayout>

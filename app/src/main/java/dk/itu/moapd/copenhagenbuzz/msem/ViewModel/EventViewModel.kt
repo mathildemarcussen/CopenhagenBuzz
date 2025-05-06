@@ -20,9 +20,6 @@ class EventViewModel : ViewModel() {
     private lateinit var imageRepository: ImageRepository
     private var favoriteList = MutableLiveData<List<Event>>()
     var _favorites : LiveData<List<Event>> get() = favoriteList
-    val events: LiveData<List<Event>> = _events
-    val auth = FirebaseAuth.getInstance()
-
     init {
         createRepos()
         getEvents()

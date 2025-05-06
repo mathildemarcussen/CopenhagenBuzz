@@ -22,10 +22,6 @@
 * SOFTWARE.
 */
 package dk.itu.moapd.copenhagenbuzz.msem.Model
-
-import android.net.Uri
-import java.util.UUID
-
 /**
 *  A dataclass representing an event i the CopenhagemBuzz App
 *
@@ -37,6 +33,8 @@ import java.util.UUID
 * @property eventDate The date of the event.
 * @property eventType The type of the event.
 * @property eventDescription The description of the event.
+ * @property userID The ID for the user who creates the event.
+ * @property photourl The URL for the photo used on the event.
 */
 data class Event(
     var eventName: String? = "",

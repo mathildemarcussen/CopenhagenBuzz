@@ -110,16 +110,6 @@ class LocationService : Service() {
         return START_STICKY
     }
 
-    fun unsubscribeToLocationUpdates() {
-        try {
-            fusedLocationProviderClient
-                .removeLocationUpdates(locationCallback)
-            SharedPreferenceUtil.saveLocationTrackingPref(this, false)
-        } catch (unlikely: SecurityException) {
-            SharedPreferenceUtil.saveLocationTrackingPref(this, true)
-        }
-    }
-
     internal object SharedPreferenceUtil {
 
         const val KEY_FOREGROUND_ENABLED = "tracking_foreground_location"

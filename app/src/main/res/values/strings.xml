@@ -45,5 +45,11 @@
         translatable="false">YOUR_KEY</string>
     <string name="button_stop">Stop</string>
     <string name="text_speed_km">%d KM</string>
+    <string name="address">Address</string>
+    <string name="date">Date</string>
+    <string name="type">Type</string>
+    <string name="geofence_radius_meters">Geofence Radius (meters)</string>
+    <string name="radius_100m">Radius: 100m</string>
+    <string name="add_geofence">Add Geofence</string>
 
 </resources>

@@ -5,12 +5,9 @@ import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.core.content.ContextCompat.getString
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofenceStatusCodes
 import com.google.android.gms.location.GeofencingEvent
-import dk.itu.moapd.copenhagenbuzz.msem.R
 
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
     // ...
@@ -43,7 +40,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
             )
 
             // Send notification and log the transition details.
-            sendNotification(context, geofenceTransitionDetails)
+            sendNotification(geofenceTransitionDetails)
             Log.i(TAG, geofenceTransitionDetails)
         } else {
             // Log the error.
@@ -65,7 +62,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
         return "$transitionString geofence(s): $ids"
     }
 
-    private fun sendNotification(context: Context, message: String) {
+    private fun sendNotification(message: String) {
         // You could use NotificationManager here to send a proper notification.
         Log.d(TAG, "Notification: $message")
     }
