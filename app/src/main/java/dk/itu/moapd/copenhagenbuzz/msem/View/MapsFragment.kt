@@ -126,6 +126,7 @@ class MapsFragment : Fragment() {
 
         // Enable the location layer. Request the permission if it is not granted.
         if (checkPermission()) {
+            Log.d("Location Permission", "Permission granted")
             googleMap.isMyLocationEnabled = true
         } else {
             requestUserPermissions()
@@ -294,15 +295,16 @@ class MapsFragment : Fragment() {
     }
 
     private fun requestUserPermissions() {
-        val permissions = mutableListOf(Manifest.permission.ACCESS_FINE_LOCATION)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            permissions.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+             requestLocationBackground()
         }
 
+    }
+    private fun requestLocationBackground() {
         ActivityCompat.requestPermissions(
             requireActivity(),
-            permissions.toTypedArray(),
+            arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
             REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
         )
     }

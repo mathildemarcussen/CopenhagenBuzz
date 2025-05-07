@@ -24,7 +24,10 @@
 
 package dk.itu.moapd.copenhagenbuzz.msem.View
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.GestureDetector
@@ -35,6 +38,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -68,6 +72,7 @@ class MainActivity : AppCompatActivity() {
      */
     companion object {
         private val TAG = MainActivity::class.qualifiedName
+        private const val REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE = 34
     }
 
     /**
@@ -110,6 +115,10 @@ class MainActivity : AppCompatActivity() {
 
         // Updates the userbutton based on the isLoggedIn value
         updateUserIcon(userButton)
+
+        if(!checkPermission()) {
+            requestUserPermissions()
+        }
 
         /** Click lisnetner for the User button
          * Calls startActivity to launch LoginActivity
@@ -300,6 +309,33 @@ class MainActivity : AppCompatActivity() {
             menu.findItem(R.id.accountmail_item).title = user2?.email ?: "anonymous@gmail.com"
             menu.findItem(R.id.signin_signout_item).title = "Sign In"
         }
+    }
+
+    private fun requestUserPermissions() {
+
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+            REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
+        )
+    }
+
+    private fun checkPermission(): Boolean {
+        val fineLocation = ActivityCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        val backgroundLocation = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        } else {
+            true // Background permission not needed before Android Q
+        }
+
+        return fineLocation && backgroundLocation
     }
 
 }
