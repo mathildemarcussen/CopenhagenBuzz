@@ -24,7 +24,10 @@
 
 package dk.itu.moapd.copenhagenbuzz.msem.View
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.GestureDetector
@@ -35,10 +38,10 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.ActivityMainBinding
@@ -69,6 +72,7 @@ class MainActivity : AppCompatActivity() {
      */
     companion object {
         private val TAG = MainActivity::class.qualifiedName
+        private const val REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE = 34
     }
 
     /**
@@ -112,6 +116,11 @@ class MainActivity : AppCompatActivity() {
         // Updates the userbutton based on the isLoggedIn value
         updateUserIcon(userButton)
 
+        //Checks if permission for fine location is granted, and if not, requests it
+        if(!checkPermission()) {
+            requestUserPermissions()
+        }
+
         /** Click lisnetner for the User button
          * Calls startActivity to launch LoginActivity
          * Calls finish to close MainActivity
@@ -152,7 +161,6 @@ class MainActivity : AppCompatActivity() {
                     signinSignout()
                     true
                 }
-                // Her kan du også håndtere andre navigation items, hvis du vil
                 else -> false
             }
         }
@@ -242,9 +250,9 @@ class MainActivity : AppCompatActivity() {
         userButton.setImageResource(R.drawable.baseline_menu_24)
     }
 
-    override fun onStart() {
-        super.onStart()
-    }
+    /**
+     * Starts the login activity and clears the backstack.
+     */
 
     private fun startLoginActivity() {
         Intent(this, LoginActivity::class.java).apply {
@@ -253,12 +261,24 @@ class MainActivity : AppCompatActivity() {
         }.let(::startActivity)
     }
 
+    /**
+     * Inflates the menu; this adds items to the action bar if it is present.
+     *
+     * @param menu Menu to inflate.
+     * @return true if the menu is inflated, false otherwise.
+     */
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater: MenuInflater = menuInflater
         inflater.inflate(R.menu.navigation_menu, menu)
         return true
     }
 
+    /**
+     * Handles option item selection from the menu.
+     *
+     * @param item The selected menu item.
+     * @return true if the item is selected, false otherwise.
+     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle item selection.
         return when (item.itemId) {
@@ -272,7 +292,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun signinSignout() {
+    /**
+     * Signs in or out the user depending on the current state.
+     * If no user is signed in, starts LoginActivity.
+     * If user is signed in, signs them out and updates the navigation drawer.
+     */
+    private fun signinSignout() {
         val user = FirebaseAuth.getInstance().currentUser
         if (user == null) {
             startLoginActivity()
@@ -285,6 +310,31 @@ class MainActivity : AppCompatActivity() {
             menu.findItem(R.id.accountmail_item).title = user2?.email ?: "anonymous@gmail.com"
             menu.findItem(R.id.signin_signout_item).title = "Sign In"
         }
+    }
+
+    /**
+     * Requests the necessary permissions for the Map part of the app.
+     */
+    private fun requestUserPermissions() {
+
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+            REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
+        )
+    }
+
+    /**
+     * Checks if the necessary permissions are granted.
+     *
+     * @return true if permissions are granted, false otherwise.
+     */
+    private fun checkPermission(): Boolean {
+        val fineLocation = ActivityCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        return fineLocation
     }
 
 }

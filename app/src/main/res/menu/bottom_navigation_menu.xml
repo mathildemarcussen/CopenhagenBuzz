@@ -15,10 +15,5 @@
       android:enabled="true"
       android:icon="@drawable/baseline_map_24"
       android:title="@string/text_label_3"/>
-  <item
-      android:id="@+id/calendarFragment"
-      android:enabled="true"
-      android:icon="@drawable/baseline_calendar_today_24"
-      android:title="@string/text_label_4"/>
 
 </menu>

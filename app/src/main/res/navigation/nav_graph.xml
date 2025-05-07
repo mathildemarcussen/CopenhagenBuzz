@@ -28,13 +28,5 @@
         android:name="dk.itu.moapd.copenhagenbuzz.msem.View.MapsFragment"
         android:label="fragment_maps"
         tools:layout="@layout/fragment_maps" >
-        <action
-            android:id="@+id/action_mapsFragment_to_calendarFragment"
-            app:destination="@id/calendarFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/calendarFragment"
-        android:name="dk.itu.moapd.copenhagenbuzz.msem.View.CalendarFragment"
-        android:label="fragment_calendar"
-        tools:layout="@layout/fragment_calendar" />
 </navigation>

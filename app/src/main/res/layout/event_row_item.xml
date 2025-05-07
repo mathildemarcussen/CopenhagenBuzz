@@ -29,7 +29,7 @@
 
                 <TextView
                     android:id="@+id/event_name"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/list_item_spacing_half"
                     android:layout_weight="1"
@@ -135,11 +135,11 @@
                     android:text="@string/edit" />
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/info_button"
+                    android:id="@+id/share_button"
                     style="?attr/borderlessButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/info" />
+                    android:text="@string/share" />
             </LinearLayout>
 
         </LinearLayout>

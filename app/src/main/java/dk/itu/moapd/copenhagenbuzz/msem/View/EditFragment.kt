@@ -25,8 +25,6 @@ import androidx.core.util.component1
 import androidx.core.util.component2
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointForward
@@ -42,7 +40,6 @@ import dk.itu.moapd.copenhagenbuzz.msem.R
 import dk.itu.moapd.copenhagenbuzz.msem.View.ModalBottomSheet.Companion.TAG
 import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.EventViewModel
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.FragmentEditBinding
-import dk.itu.moapd.copenhagenbuzz.msem.databinding.FragmentUserInfoDialogBinding
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 
@@ -65,7 +62,6 @@ class EditFragment(_event: Event, eventID: String) : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         super.onCreateDialog(savedInstanceState)
         val auth = FirebaseAuth.getInstance()
-        val database = Firebase.database.reference
 
         _binding = FragmentEditBinding.inflate(layoutInflater)
         val view = binding.root

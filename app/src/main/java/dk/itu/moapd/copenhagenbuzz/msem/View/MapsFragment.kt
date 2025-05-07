@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
@@ -15,13 +16,17 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.ServiceConnection
 import android.content.SharedPreferences
+import android.graphics.Color
 import android.location.Location
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import android.widget.SeekBar
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -29,6 +34,7 @@ import com.google.android.gms.maps.GoogleMap
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.FragmentMapsBinding
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.tasks.CancellationToken
@@ -36,18 +42,18 @@ import com.google.android.gms.tasks.OnTokenCanceledListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.copenhagenbuzz.msem.Model.Event
 import dk.itu.moapd.copenhagenbuzz.msem.Model.LocationService
 import dk.itu.moapd.copenhagenbuzz.msem.R
 import com.google.android.gms.maps.model.Marker
+import dk.itu.moapd.copenhagenbuzz.msem.database
 
 
 class MapsFragment : Fragment() {
     private var _binding: FragmentMapsBinding? = null
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private val markerEventMap = mutableMapOf<Marker, Event>()
+    lateinit var geofencingClient: GeofencingClient
 
 
     private inner class LocationBroadcastReceiver : BroadcastReceiver() {
@@ -96,6 +102,7 @@ class MapsFragment : Fragment() {
     }
 
 
+    @SuppressLint("MissingPermission")
     private val callback = OnMapReadyCallback { googleMap ->
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
@@ -119,14 +126,13 @@ class MapsFragment : Fragment() {
 
         // Enable the location layer. Request the permission if it is not granted.
         if (checkPermission()) {
+            Log.d("Location Permission", "Permission granted")
             googleMap.isMyLocationEnabled = true
         } else {
             requestUserPermissions()
         }
 
-        val database = Firebase.database.reference
         val eventsRef = database
-            .child("CopenhagenBuzz")
             .child("events")
 
 
@@ -146,8 +152,6 @@ class MapsFragment : Fragment() {
                             MarkerOptions()
                                 .position(position)
                                 .title(name)
-
-
                         )
                         if(marker != null && event !=null) {
                             markerEventMap[marker] = event
@@ -155,13 +159,12 @@ class MapsFragment : Fragment() {
 
                     }
                     googleMap.setOnMarkerClickListener { marker ->
-                        val event = markerEventMap[marker]
                         marker.showInfoWindow()
                         true
                     }
 
                     googleMap.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
-                        override fun getInfoContents(marker: com.google.android.gms.maps.model.Marker): View? {
+                        override fun getInfoContents(marker: Marker): View? {
                             val infoView = layoutInflater.inflate(R.layout.custom_info_window, null)
 
                             val titleView = infoView.findViewById<TextView>(R.id.info_title)
@@ -181,7 +184,7 @@ class MapsFragment : Fragment() {
                             return infoView
                         }
 
-                        override fun getInfoWindow(marker: com.google.android.gms.maps.model.Marker): View? =
+                        override fun getInfoWindow(marker: Marker): View? =
                             null
                     })
                 }
@@ -194,13 +197,18 @@ class MapsFragment : Fragment() {
 
     }
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? = FragmentMapsBinding.inflate(inflater, container, false).also {
         _binding = it
     }.root
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        geofencingClient = LocationServices.getGeofencingClient(requireActivity())
+    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -213,7 +221,9 @@ class MapsFragment : Fragment() {
 
         locationBroadcastReceiver = LocationBroadcastReceiver()
 
-
+        binding.btnAddGeofence.setOnClickListener {
+            showGeofenceDialog()
+        }
     }
 
     override fun onStart() {
@@ -266,19 +276,146 @@ class MapsFragment : Fragment() {
         _binding = null
     }
 
-    private fun checkPermission() =
-        ActivityCompat.checkSelfPermission(
+    private fun checkPermission(): Boolean {
+        val fineLocation = ActivityCompat.checkSelfPermission(
             requireContext(),
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
 
-    private fun requestUserPermissions() {
-        if (!checkPermission())
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
-            )
+        val backgroundLocation = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        } else {
+            true // Background permission not needed before Android Q
+        }
+
+        return fineLocation && backgroundLocation
     }
+
+    private fun requestUserPermissions() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+             requestLocationBackground()
+        }
+
+    }
+    private fun requestLocationBackground() {
+        ActivityCompat.requestPermissions(
+            requireActivity(),
+            arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+            REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
+        )
+    }
+
+    private fun showGeofenceDialog() {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_geofence, null)
+        val seekBar = dialogView.findViewById<SeekBar>(R.id.radius_seekbar)
+        val radiusLabel = dialogView.findViewById<TextView>(R.id.radius_label)
+
+        var radius = 100
+        radiusLabel.text = "Radius: ${radius}m"
+
+        seekBar.progress = radius
+        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                radius = if (progress < 50) 50 else progress // Min radius = 50m
+                radiusLabel.text = "Radius: ${radius}m"
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Add Geofence")
+            .setView(dialogView)
+            .setPositiveButton("Confirm") { _, _ ->
+                addGeofenceAtCurrentLocation(radius)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun addGeofenceAtCurrentLocation(radius: Int) {
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            if (location != null) {
+                // Create a geofence centered at the current location
+                val geofenceCenter = LatLng(location.latitude, location.longitude)
+
+                val eventsRef = database.child("events")
+
+                eventsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val eventsInsideGeofence = mutableListOf<String>()
+
+                        for (eventSnapshot in snapshot.children) {
+                            val lat = eventSnapshot.child("eventLocation").child("latitude").getValue(Double::class.java)
+                            val lng = eventSnapshot.child("eventLocation").child("longitude").getValue(Double::class.java)
+
+                            if (lat != null && lng != null) {
+                                val eventLocation = LatLng(lat, lng)
+                                val distance = calculateDistance(geofenceCenter, eventLocation)
+
+                                if (distance <= radius) {
+                                    val eventName = eventSnapshot.child("eventName").getValue(String::class.java)
+                                    eventsInsideGeofence.add(eventName ?: "Unnamed event")
+                                }
+                            }
+                        }
+
+                        // Show dialog with events inside geofence
+                        showEventsInsideGeofenceDialog(eventsInsideGeofence)
+
+                        drawGeofenceCircle(geofenceCenter, radius)
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("FirebaseError", "Failed to read event locations: ${error.message}")
+                    }
+                })
+            }
+        }
+    }
+
+    private fun calculateDistance(latLng1: LatLng, latLng2: LatLng): Float {
+        val location1 = Location("Point 1")
+        location1.latitude = latLng1.latitude
+        location1.longitude = latLng1.longitude
+
+        val location2 = Location("Point 2")
+        location2.latitude = latLng2.latitude
+        location2.longitude = latLng2.longitude
+
+        return location1.distanceTo(location2) // Returns distance in meters
+    }
+
+    private fun showEventsInsideGeofenceDialog(events: List<String>) {
+        val eventsList = events.joinToString("\n")
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Events Inside Geofence")
+            .setMessage(eventsList.ifEmpty { "No events inside the geofence" })
+            .setPositiveButton("OK", null)
+            .show()
+    }
+
+    private fun drawGeofenceCircle(center: LatLng, radius: Int) {
+        val mapFragment = childFragmentManager.findFragmentById(binding.map.id) as SupportMapFragment?
+        mapFragment?.getMapAsync { map ->
+            map.addCircle(
+                CircleOptions()
+                    .center(center)
+                    .radius(radius.toDouble())
+                    .strokeColor(Color.BLUE)
+                    .fillColor(0x220000FF)
+                    .strokeWidth(2f)
+            )
+        }
+    }
+
+
 
 }

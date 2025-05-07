@@ -12,7 +12,6 @@ import android.icu.util.TimeZone
 import android.location.Geocoder
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
@@ -20,9 +19,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AlertDialog
-import androidx.camera.core.CameraInfoUnavailableException
-import androidx.camera.core.CameraSelector
-import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -45,13 +41,9 @@ import dk.itu.moapd.copenhagenbuzz.msem.Model.EventLocation
 import dk.itu.moapd.copenhagenbuzz.msem.R
 import dk.itu.moapd.copenhagenbuzz.msem.ViewModel.EventViewModel
 import dk.itu.moapd.copenhagenbuzz.msem.databinding.BottomSheetContentBinding
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
 import java.io.ByteArrayOutputStream
-import java.io.File
 import java.io.IOException
 import java.util.Locale
 
@@ -449,42 +441,6 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
 
         }
     }
-
-    suspend fun geocodeAddress(
-        context: Context,
-        addressString: String
-    ): Pair<Double, Double>? = withContext(Dispatchers.IO) {
-        try {
-            withTimeout(10000) {
-                val geo = Geocoder(context, Locale.getDefault())
-                // Maks 1 resultat tilbage
-                val results = geo.getFromLocationName(addressString, 1)
-                if (!results.isNullOrEmpty()) {
-                    val addr = results[0]
-                    addr.latitude to addr.longitude
-                } else {
-                    null  // Intet resultat
-                }
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            null  // Netværksfejl ell. mangel på Geocoder‐service
-        }
-    }
-
-    private fun updateCameraSwitchButton(provider: ProcessCameraProvider) {
-        bottomBinding.camera.buttonCameraSwitch.isEnabled = try {
-            hasBackCamera(provider) && hasFrontCamera(provider)
-        } catch (exception: CameraInfoUnavailableException) {
-            false
-        }
-    }
-
-    private fun hasFrontCamera(provider: ProcessCameraProvider) =
-        provider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)
-
-    private fun hasBackCamera(provider: ProcessCameraProvider) =
-        provider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)
 
     override fun onStop() {
         super.onStop()
