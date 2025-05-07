@@ -116,6 +116,7 @@ class MainActivity : AppCompatActivity() {
         // Updates the userbutton based on the isLoggedIn value
         updateUserIcon(userButton)
 
+        //Checks if permission for fine location is granted, and if not, requests it
         if(!checkPermission()) {
             requestUserPermissions()
         }
@@ -311,6 +312,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Requests the necessary permissions for the Map part of the app.
+     */
     private fun requestUserPermissions() {
 
         ActivityCompat.requestPermissions(
@@ -320,22 +324,17 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    /**
+     * Checks if the necessary permissions are granted.
+     *
+     * @return true if permissions are granted, false otherwise.
+     */
     private fun checkPermission(): Boolean {
         val fineLocation = ActivityCompat.checkSelfPermission(
             this,
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
-
-        val backgroundLocation = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_BACKGROUND_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        } else {
-            true // Background permission not needed before Android Q
-        }
-
-        return fineLocation && backgroundLocation
+        return fineLocation
     }
 
 }
