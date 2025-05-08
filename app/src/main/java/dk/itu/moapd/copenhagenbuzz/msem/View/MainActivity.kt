@@ -245,6 +245,8 @@ class MainActivity : AppCompatActivity() {
     /**
      * This Method determines which pivture is shown for the icon wether it is a
      * logout icon our a guest symbol
+     *
+     * @param userButton The button to update.
      */
     private fun updateUserIcon(userButton: ImageButton) {
         userButton.setImageResource(R.drawable.baseline_menu_24)
