@@ -53,7 +53,10 @@ class MapsFragment : Fragment() {
     private var _binding: FragmentMapsBinding? = null
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private val markerEventMap = mutableMapOf<Marker, Event>()
+    private var currentGeofenceCircle: com.google.android.gms.maps.model.Circle? = null
     lateinit var geofencingClient: GeofencingClient
+    private lateinit var googleMap: GoogleMap
+
 
 
     private inner class LocationBroadcastReceiver : BroadcastReceiver() {
@@ -103,7 +106,8 @@ class MapsFragment : Fragment() {
 
 
     @SuppressLint("MissingPermission")
-    private val callback = OnMapReadyCallback { googleMap ->
+    private val callback = OnMapReadyCallback { map ->
+        googleMap = map
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         fusedLocationClient.getCurrentLocation(
@@ -402,7 +406,7 @@ class MapsFragment : Fragment() {
             .show()
     }
 
-    private fun drawGeofenceCircle(center: LatLng, radius: Int) {
+    /*private fun drawGeofenceCircle(center: LatLng, radius: Int) {
         val mapFragment = childFragmentManager.findFragmentById(binding.map.id) as SupportMapFragment?
         mapFragment?.getMapAsync { map ->
             map.addCircle(
@@ -414,7 +418,22 @@ class MapsFragment : Fragment() {
                     .strokeWidth(2f)
             )
         }
+    }*/
+    private fun drawGeofenceCircle(center: LatLng, radius: Int) {
+        // Remove previous circle if it exists
+        currentGeofenceCircle?.remove()
+
+        // Draw new circle and keep reference to it
+        currentGeofenceCircle = googleMap.addCircle(
+            CircleOptions()
+                .center(center)
+                .radius(radius.toDouble())
+                .strokeColor(Color.BLUE)
+                .fillColor(0x220000FF) // semi-transparent blue
+                .strokeWidth(4f)
+        )
     }
+
 
 
 
